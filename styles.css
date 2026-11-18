@@ -120,7 +120,7 @@ input[type=range] { accent-color: #c98a1e; width: 150px; cursor: pointer; }
 }
 
 .left-pane .card {
-  padding: 10px 12px;
+  padding: 15px 17px;
 }
 
 /* Draggable Split Resizer */
@@ -176,7 +176,7 @@ aside.right-pane::-webkit-scrollbar-thumb:hover { background: #7e97b4; }
 
 /* Wheel & Enlarged Wheel Typography */
 .wheelwrap { position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-#wheel { display: block; width: 100%; height: auto; max-width: none; max-height: calc(100vh - 96px); margin: 0 auto; user-select: none; }
+#wheel { display: block; width: 100%; height: auto; max-width: none; max-height: calc(100vh - 82px); margin: 0 auto; user-select: none; }
 .wedge { transition: opacity .15s ease; outline: none; }
 .wedge:focus-visible { opacity: .75; }
 
@@ -189,7 +189,7 @@ aside.right-pane::-webkit-scrollbar-thumb:hover { background: #7e97b4; }
 #wheel .hub-sub { font-size: 14px !important; }
 #wheel .hub-stat { font-size: 17px !important; }
 
-.legend { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-top: 4px; }
 .legend span {
   display: inline-flex; align-items: center; gap: 5px; font-size: 10.8px; font-weight: 700;
   color: var(--ink2); background: #f5f9fd; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
