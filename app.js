@@ -104,7 +104,6 @@ function initSplitResizer() {
   const layout = el('mainLayout');
   if (!resizer || !leftPane || !layout) return;
 
-  // Restore saved width if available
   const savedWidth = localStorage.getItem('fx_split_left_px');
   if (savedWidth) {
     const px = parseFloat(savedWidth);
@@ -163,10 +162,7 @@ let portfolioRows = [
 const CSV_HEADERS = ["pair", "side", "lots", "entry", "current", "swap", "notes"];
 
 function parseCsvText(text) {
-  const lines = text.replace(/
-/g, "
-").split("
-").filter(l => l.trim() !== "");
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(l => l.trim() !== "");
   if (lines.length === 0) return [];
   const headerCols = lines[0].split(",").map(h => h.trim().toLowerCase());
   const hasHeader = headerCols.includes("pair") && headerCols.includes("entry");
@@ -205,8 +201,7 @@ function serializeCsv() {
     const safeNotes = String(r.notes || "").replace(/,/g, ";");
     rows.push([r.pair, r.side, r.lots, r.entry, r.current, r.swap, safeNotes].join(","));
   });
-  return rows.join("
-");
+  return rows.join("\n");
 }
 
 function updateCsvStatus(msg, linked) {
@@ -260,7 +255,6 @@ async function bindLocalCsvFile() {
     }
   }
 
-  // Fallback for file:// protocol or non-Chromium browsers
   const fallbackInput = el('csvFileInput');
   if (fallbackInput) fallbackInput.click();
 }
@@ -299,13 +293,10 @@ function exportCsvDownload() {
 function calcSwapBreakEven(row) {
   const isJpy = row.pair.includes("JPY");
   const contractSize = 100000;
-  // Approximate USD/quote conversion for pip value estimation
-  const pipUnit = isJpy ? 0.01 : 0.0001;
   const quoteToUsd = isJpy ? (1 / (row.current || 150)) : 1.0;
   const usdPerPriceUnit = row.lots * contractSize * quoteToUsd;
   if (usdPerPriceUnit <= 0) return row.entry;
 
-  // Break-even occurs where (Price - Entry)*dir*usdPerPriceUnit + Swap = 0
   const dir = row.side === "BUY" ? 1 : -1;
   const bePrice = row.entry - (row.swap / (dir * usdPerPriceUnit));
   const decimals = isJpy ? 3 : 5;
@@ -353,7 +344,6 @@ function renderPortfolioTable() {
       <td><button type="button" class="btn sm danger" data-action="delete">刪除</button></td>
     `;
 
-    // Inline live edit listener
     tr.querySelectorAll('input, select').forEach(ctrl => {
       ctrl.addEventListener('change', async () => {
         const col = ctrl.dataset.col;
@@ -386,7 +376,6 @@ function renderPortfolioTable() {
   });
 }
 
-/* BUG FIX #3: Scoped querySelector('[data-new="..."]') reading .value directly */
 async function appendNewPortfolioRecord() {
   const addRow = el('pfAddRow');
   if (!addRow) return;
@@ -431,7 +420,6 @@ async function appendNewPortfolioRecord() {
 
   portfolioRows.push(newRecord);
 
-  // Clear inputs after appending
   pairEl.value = "";
   lotsEl.value = "0.10";
   entryEl.value = "";
@@ -457,7 +445,6 @@ function initPortfolioAndCsv() {
   el('btnExportCsv')?.addEventListener('click', exportCsvDownload);
   el('btnAddPfRow')?.addEventListener('click', appendNewPortfolioRecord);
 
-  // Allow pressing Enter inside the new-row inputs to append immediately
   el('pfAddRow')?.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -465,7 +452,6 @@ function initPortfolioAndCsv() {
     }
   });
 
-  // Hidden <input type="file"> fallback listener
   el('csvFileInput')?.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -530,7 +516,7 @@ function evMarker(h, cat, title, detail, dateLabel, recur, lane) {
   g.innerHTML = `<line x1="${x2.toFixed(1)}" y1="${y2.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${c.c}" stroke-width="1.6" opacity="0.65"/>` + inner;
   g.addEventListener('mousemove', e => showTip(e, (recur ? '⟳ ' : '● ') + c.zh + '｜' + title, detail + (dateLabel ? ` <span style="opacity:.78">${dateLabel}</span>` : '')));
   g.addEventListener('mouseleave', hideTip);
-  g.addEventListener('click', () => { ST.hour = h; ST.live = false; setScrub(h * 60); render(); });
+  g.addEventListener('click', () => { ST.hour = h; ST.live = false; setScrub(w.s * 60); render(); });
   elayer.appendChild(g);
 }
 
@@ -688,12 +674,9 @@ function renderAI(idx) {
   const up = near.map(x => `◉ ${hhmm(x.e.h)} ${x.e.t}（${CAT[x.e.cat].zh}${x.label !== '每日重複' && x.label !== '常設背景' ? '·' + x.label : ''}）`).join(' ｜ ');
   el('aiUp').innerHTML = '<b>接下來 24 小時 ▸</b> ' + (up || '無重大事件') + (closed ? ' ｜ ' + ms.reopen : '');
 
-  window.__brief = `【外匯 24H 市場簡報｜${DAY_FULL[ST.day]} ${closed ? w.cl + '（休市）' : w.zh} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00｜${ms.label}】
-` +
-    `◆ 市場狀態：${ms.label}（${tradingDayNo(ST.day, h)}）
-` +
-    `◆ 市場現況：${el('aiNow').textContent}
-` +
+  window.__brief = `【外匯 24H 市場簡報｜${DAY_FULL[ST.day]} ${closed ? w.cl + '（休市）' : w.zh} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00｜${ms.label}】\n` +
+    `◆ 市場狀態：${ms.label}（${tradingDayNo(ST.day, h)}）\n` +
+    `◆ 市場現況：${el('aiNow').textContent}\n` +
     `◆ 本時段操作重點：${closed ? dc.a : a.act}`;
 }
 
