@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>24小時外匯交易週期圖 · 香港時間 HKT 互動版 | FX1 三時段交易系統</title>
+<style>
+:root{
+  --bg1:#eef3f9;
+  --bg2:#f8fafc;
+  --card:#ffffff;
+  --line:#e2e9f2;
+  --line2:#cfdbe8;
+  --ink:#0f233c;
+  --ink2:#35475c;
+  --ink3:#63758a;
+  --muted:#8d9eb2;
+  --shadow:0 1px 2px rgba(15,35,60,.04),0 10px 28px rgba(15,35,60,.06);
+  --shadow-lg:0 12px 32px rgba(15,35,60,.12);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;scroll-behavior:smooth}
+body{
+  background:linear-gradient(155deg,var(--bg1) 0%,#e7eff8 42%,var(--bg2) 100%);
+  color:var(--ink);
+  font-family:"PingFang HK","Noto Sans TC","Microsoft JhengHei","PingFang TC","Hiragino Sans GB","Segoe UI",sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1960px;margin:0 auto;padding:16px 18px 44px}
+
+/* Header */
+header{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:16px;margin-bottom:12px
+}
+.title-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:10.5px;font-weight:800;letter-spacing:.8px;
+  color:#1e4f80;background:#dfeaf7;border:1px solid #c5daf2;
+  padding:3px 10px;border-radius:999px;margin-bottom:7px;
+}
+h1{margin:0;font-size:25px;letter-spacing:.2px;font-weight:800;color:var(--ink)}
+.sub{margin:6px 0 0;color:var(--ink3);font-size:12.2px;line-height:1.7;max-width:880px}
+.sub b{color:var(--ink2)}
+.src{font-size:11px;color:var(--ink3);text-align:right;line-height:1.7}
+.src b{color:var(--ink)}
+.nowchip{
+  display:inline-flex;align-items:center;gap:7px;background:#fff;
+  border:1px solid #f0c9c9;color:#c0392b;border-radius:999px;
+  padding:6px 14px;font-size:11.8px;font-weight:800;margin-top:6px;
+  box-shadow:0 2px 8px rgba(15,35,60,.05);
+}
+.nowchip i{width:8px;height:8px;border-radius:50%;background:#e03a3a;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.85)}}
+.nowchip.open{border-color:#b6dec8;color:#157a4e;background:#f4fbf7}.nowchip.open i{background:#1c8a5a}
+.nowchip.closed{border-color:#d4dce6;color:#516275;background:#f4f7fa}.nowchip.closed i{background:#8496ab;animation:none}
+.nowchip.roll{border-color:#ebd09e;color:#8f620f;background:#fffaf0}.nowchip.roll i{background:#c98a1e}
+
+/* Toolbar */
+.toolbar{
+  display:flex;flex-wrap:wrap;gap:9px;align-items:center;
+  background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
+  border:1px solid var(--line);border-radius:15px;padding:9px 14px;
+  margin-bottom:14px;box-shadow:var(--shadow)
+}
+.toolbar .lab{font-size:10.8px;font-weight:800;color:var(--muted);letter-spacing:.5px}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:11.4px;font-weight:700;
+  border:1px solid var(--line);background:#f7fafd;color:var(--ink2);
+  border-radius:999px;padding:5px 12px;cursor:pointer;user-select:none;transition:.16s ease
+}
+.chip:hover{transform:translateY(-1px);box-shadow:0 2px 6px rgba(15,35,60,.08)}
+.chip.on{color:#fff;border-color:transparent}
+.chip i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.chip.off{opacity:.4;text-decoration:line-through}
+
+.days{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#f7fafd}
+.days button{
+  border:0;background:transparent;font:inherit;font-size:11.4px;font-weight:700;
+  color:var(--ink2);padding:5px 11px;cursor:pointer;min-width:34px;transition:.15s
+}
+.days button:hover{background:#e8f0f8}
+.days button.on{background:#12263f;color:#fff}
+.days button.off{color:#9fb0c2}
+.days button.off::after{content:"·";margin-left:2px;font-weight:900}
+
+.btn{
+  font:inherit;font-size:11.4px;font-weight:700;border:1px solid var(--line2);
+  background:#fff;color:var(--ink2);border-radius:10px;padding:6px 13px;cursor:pointer;transition:.15s
+}
+.btn:hover{background:#f2f7fc;border-color:#9fb4cb}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:#12263f;color:#fff;border-color:#12263f}
+.btn.pri:hover{background:#1e3f66}
+
+input[type=range]{accent-color:#c98a1e;width:168px;cursor:pointer}
+.scrub{display:flex;align-items:center;gap:8px;font-size:11.4px;color:var(--ink2);font-weight:700}
+.scrub b{font-family:"Inter","Segoe UI",sans-serif;color:#12263f;font-size:12.6px;min-width:74px}
+
+/* Main Split Grid: 2/3 Pinned Left Wheel + 1/3 Independently Scrollable Right Data Pane */
+.layout{
+  display:grid;
+  grid-template-columns:minmax(0, 2fr) minmax(0, 1fr);
+  gap:16px;
+  align-items:start;
+}
+.left-pane{
+  position:sticky;
+  top:10px;
+  min-width:0;
+}
+.left-pane .card{
+  padding:8px 10px 10px;
+}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:16px 18px}
+.card h2{margin:0 0 5px;font-size:14.8px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink)}
+.card .hint{margin:0 0 11px;font-size:11.2px;color:var(--ink3);line-height:1.65}
+
+/* Wheel - Maximized to fill 2/3 card bounds */
+.wheelwrap{position:relative;display:flex;justify-content:center;align-items:center;width:100%}
+#wheel{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:calc(100vh - 74px);
+  margin:0 auto;
+  user-select:none
+}
+.wedge{transition:opacity .15s ease;outline:none}
+.wedge:focus-visible{opacity:.75}
+.legend{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;margin-top:6px}
+.legend span{
+  display:inline-flex;align-items:center;gap:4px;font-size:10.2px;font-weight:600;
+  color:var(--ink2);background:#f5f9fd;border:1px solid var(--line);border-radius:999px;padding:3px 8px
+}
+.legend i{width:8px;height:8px;border-radius:3px;display:inline-block}
+.legend .sq{width:12px;height:9px;border-radius:3px;display:inline-block;border:1px solid #c5d3e3}
+
+#tip{
+  position:absolute;pointer-events:none;background:rgba(16,38,63,.96);backdrop-filter:blur(6px);
+  color:#fff;font-size:11.3px;line-height:1.6;padding:10px 13px;border-radius:11px;
+  max-width:315px;opacity:0;transition:opacity .12s;z-index:50;
+  box-shadow:0 10px 26px rgba(10,25,45,.32);border:1px solid rgba(255,255,255,.12)
+}
+#tip b{color:#f4c756}
+
+/* Right Column (1/3 Width): Independent Scroll Container */
+aside{
+  position:sticky;
+  top:10px;
+  min-width:0;
+  max-height:calc(100vh - 20px);
+  overflow-y:auto;
+  padding-right:8px;
+  scroll-behavior:smooth;
+  scrollbar-width:thin;
+  scrollbar-color:#a5b8ce #e8eef5;
+}
+aside::-webkit-scrollbar{width:9px}
+aside::-webkit-scrollbar-track{background:#e8eef5;border-radius:10px}
+aside::-webkit-scrollbar-thumb{background:#a5b8ce;border-radius:10px;border:2px solid #e8eef5}
+aside::-webkit-scrollbar-thumb:hover{background:#7e97b4}
+.scrollhint{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  font-size:11px;color:#35475c;background:#f0f6fd;border:1px solid #c5daf2;
+  border-radius:11px;padding:8px 12px;margin-bottom:14px;font-weight:600;line-height:1.45
+}
+
+/* Readout Box */
+.readout{
+  border-radius:14px;border:1px solid var(--line);
+  background:linear-gradient(160deg,#fbfdff,#f2f7fc);padding:14px 15px;min-height:220px
+}
+.readout .rt-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.readout .rt-zh{font-size:18.5px;font-weight:800;color:var(--ink)}
+.readout .rt-en{font-size:11px;color:var(--ink3);font-weight:700}
+.readout .rt-badge{margin-left:auto;font-size:10.4px;font-weight:800;color:#fff;border-radius:999px;padding:4px 10px}
+.rt-time{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:8px;
+  margin:10px 0 11px;padding:9px 0;border-top:1px dashed var(--line2);border-bottom:1px dashed var(--line2)
+}
+.rt-time div{font-size:10.5px;color:var(--ink3)}
+.rt-time b{display:block;font-size:12.8px;color:var(--ink);font-weight:800;font-family:"Inter","Segoe UI",sans-serif;margin-top:2px}
+.rt-line{font-size:11.8px;line-height:1.72;color:var(--ink2);margin:7px 0}
+.rt-line b{color:var(--ink)}
+.rt-line .lbl{color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.6px;display:block;margin-bottom:2px}
+.pillset{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pill{font-size:10.3px;font-weight:700;border-radius:999px;padding:4px 9px;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.pill.on{background:#e6f6ed;border-color:#b8dec9;color:#14664a}
+.pill.off{background:#f1f4f8;color:#6b7c90}
+.pill.warn{background:#fff3e2;border-color:#f0d3a8;color:#8f620f}
+
+/* AI Briefing Panel (Inside 1/3 Right Scroll Column) */
+.ai{
+  border-radius:18px;border:1px solid #d5e2f0;
+  background:linear-gradient(165deg,#fbfdff 0%,#eef4fb 100%);
+  overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow)
+}
+.ai-head{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 15px;
+  background:linear-gradient(105deg,#0f233c,#1d456b);color:#fff
+}
+.ai-head .tag{
+  font-size:9.8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+  border-radius:999px;padding:3px 9px;font-weight:800;letter-spacing:.6px
+}
+.ai-head h3{margin:0;font-size:14.2px;font-weight:800}
+.ai-head .rt{font-size:10.2px;color:#b2cde6;font-weight:600;width:100%;margin-top:2px;line-height:1.45}
+.ai-status{font-size:10.2px;font-weight:800;border-radius:999px;padding:3px 10px;margin-left:auto}
+.st-open{background:#1c8a5a;color:#fff}.st-closed{background:#5b6b7d;color:#fff}.st-roll{background:#c98a1e;color:#fff}
+.ai-body{padding:14px 15px}
+.ai-grid{display:grid;grid-template-columns:1fr;gap:10px}
+.ai-box{border:1px solid var(--line);border-radius:13px;padding:11px 13px;background:#fff;transition:.15s}
+.ai-box:hover{border-color:#c4d4e6}
+.ai-box .h{display:flex;align-items:center;gap:7px;font-size:11.4px;font-weight:800;color:var(--ink);margin-bottom:5px}
+.ai-box .h em{font-style:normal;font-size:14px;line-height:1}
+.ai-box p{margin:0;font-size:11.6px;line-height:1.72;color:var(--ink2)}
+.ai-box.closed{background:#f7f9fc;border-style:dashed}
+.ai-act{
+  margin-top:11px;border-radius:12px;border:1px solid #eedaa8;
+  background:#fffaf0;padding:11px 13px;font-size:11.8px;line-height:1.7;color:#543e12
+}
+.ai-act b{color:#8f620f}
+.ai-up{
+  margin-top:10px;font-size:11.2px;color:var(--ink2);line-height:1.7;
+  background:#f5f9fd;border:1px dashed var(--line2);border-radius:11px;padding:10px 12px
+}
+.ai-up b{color:var(--ink)}
+.ai-day{
+  border-radius:12px;border-left:4px solid #2f6fb0;background:#ebf3fc;
+  padding:11px 13px;font-size:11.6px;line-height:1.7;color:#223c59
+}
+.ai-day p{margin:5px 0 0}
+.ai-day-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.ai-day .dh{font-weight:800;font-size:12.4px;color:#0f233c}
+.ai-day .dt{font-size:10.2px;font-weight:800;color:#fff;background:#2f6fb0;border-radius:999px;padding:3px 9px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:11.2px}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;line-height:1.55}
+th{font-size:10px;color:var(--ink3);font-weight:800;letter-spacing:.4px;background:#f5f9fd}
+tbody tr:hover{background:#f9fcff}
+td b{color:var(--ink)}
+.num{font-family:"Inter","Segoe UI",sans-serif;font-weight:700;white-space:nowrap}
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.lvl{color:#c98a1e;white-space:nowrap;letter-spacing:1px;font-weight:700}
+
+/* Overlap Cards */
+.ovl-card{
+  border:1px solid var(--line);border-radius:13px;padding:12px 13px;margin-bottom:11px;
+  background:#fff;position:relative;overflow:hidden
+}
+.ovl-card:last-child{margin-bottom:0}
+.ovl-card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.ovl-card h3{margin:0 0 4px;font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ovl-card .oc-time{font-size:10.5px;color:var(--ink3);font-family:"Inter","Segoe UI",sans-serif;font-weight:700;margin-bottom:8px}
+.ovl-card .oc-row{font-size:11.4px;line-height:1.68;color:var(--ink2);margin:5px 0}
+.ovl-card .oc-row .lbl{color:var(--muted);font-size:9.8px;font-weight:800;letter-spacing:.6px;display:block}
+.ovl-card .oc-row b{color:var(--ink)}
+.star{margin-left:auto;font-size:10px;background:#fdf3d8;color:#8f620f;border-radius:999px;padding:3px 8px;font-weight:800}
+
+/* Strategy List */
+.strat-list{list-style:none;margin:0;padding:0}
+.strat-list li{font-size:11.4px;line-height:1.68;color:var(--ink2);padding:8px 0 8px 13px;border-bottom:1px dashed var(--line);position:relative}
+.strat-list li:before{content:"▸";position:absolute;left:0;color:#2f6fb0;font-weight:800}
+.strat-list li:last-child{border-bottom:0}
+.strat-list b{color:var(--ink)}
+
+/* Snapshot Grid */
+.snap{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:9px}
+.snap div{border:1px solid var(--line);border-radius:10px;padding:8px 9px;background:#f8fbff}
+.snap .k{font-size:9.8px;color:var(--ink3);font-weight:800;letter-spacing:.3px}
+.snap .v{font-size:12px;font-weight:800;color:var(--ink);font-family:"Inter","Segoe UI",sans-serif;margin-top:2px}
+.snap .subv{font-size:9.8px;color:var(--muted);margin-top:1px}
+
+.table-wrap{overflow-x:auto}
+.row-active{background:#eaf3fd !important}
+
+/* Footer */
+footer{margin-top:22px;font-size:11px;color:var(--ink3);line-height:1.88;border-top:1px solid var(--line2);padding-top:16px}
+footer b{color:var(--ink)}
+
+@media (max-width:1180px){
+  .layout{grid-template-columns:1fr}
+  .left-pane{position:static}
+  #wheel{max-height:none}
+  aside{position:static;max-height:none;overflow:visible;padding-right:0}
+  .src{text-align:left}
+  .scrollhint{display:none}
+  .rt-time{grid-template-columns:repeat(4,1fr)}
+  .ai-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:640px){
+  .rt-time{grid-template-columns:repeat(2,1fr)}
+  .ai-grid{grid-template-columns:1fr}
+}
+
+/* ── 即時數據 ── */
+.ticker{display:flex;align-items:stretch;gap:8px;overflow-x:auto;margin-bottom:16px;padding:9px 12px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);scrollbar-width:none}
+.ticker::-webkit-scrollbar{display:none}
+.ticker .tk{flex:0 0 auto;min-width:104px;padding:5px 11px;border-right:1px solid #eef2f7}
+.ticker .tk:last-child{border-right:0}
+.ticker .tk .k{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.4px;font-family:"Inter","Segoe UI",sans-serif}
+.ticker .tk .v{font-size:15px;font-weight:800;color:var(--ink);font-family:"Inter","Segoe UI",sans-serif;margin-top:1px;letter-spacing:-.2px}
+.ticker .tk .d{font-size:10.4px;font-weight:800;font-family:"Inter","Segoe UI",sans-serif;margin-left:5px}
+.ticker .tk .ph{color:#b9c6d6;font-size:13px;font-weight:700}
+.up{color:#c0392b}.down{color:#1c8a5a}.flat{color:#8496ab}
+.live-badge{font-size:10px;font-weight:800;border-radius:999px;padding:3px 10px;background:#eef2f7;color:#6b7c90}
+.live-badge.ok{background:#e6f6ed;color:#14664a}
+.live-badge.busy{background:#fff3e2;color:#8f620f}
+.live-badge.err{background:#fdeaea;color:#a52626}
+.quote-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px;margin-top:4px}
+.quote{border:1px solid var(--line);border-radius:11px;padding:9px 11px;background:#fbfdff}
+.quote .qk{font-size:10px;color:var(--muted);font-weight:800;letter-spacing:.3px;font-family:"Inter","Segoe UI",sans-serif}
+.quote .qv{font-size:16.5px;font-weight:800;color:var(--ink);font-family:"Inter","Segoe UI",sans-serif;margin-top:2px;letter-spacing:-.3px}
+.quote .qd{font-size:10.6px;font-weight:800;font-family:"Inter","Segoe UI",sans-serif;margin-top:2px}
+.quote.hl{background:linear-gradient(140deg,#eef4fb,#f8fbff);border-color:#c9dcee}
+.live-h3{margin:15px 0 8px;font-size:12.6px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:7px}
+.news-list{display:flex;flex-direction:column;gap:1px;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:var(--line)}
+.news-item{display:flex;gap:9px;align-items:flex-start;padding:8px 11px;background:#fff;text-decoration:none;color:inherit}
+.news-item:hover{background:#f4f8fc}
+.news-item .nd{width:7px;height:7px;border-radius:50%;margin-top:5px;flex:0 0 auto}
+.news-item .nt{font-size:11.7px;line-height:1.55;color:var(--ink2)}
+.news-item .nm{font-size:10.3px;color:var(--muted);margin-top:2px;font-family:"Inter","Segoe UI",sans-serif}
+.news-item .nm b{color:#5b6b7d;font-weight:700}
+.srcstatus{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px;font-size:10.3px}
+.srcstatus span{border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink3);background:#f7fafd}
+.srcstatus span.ok{border-color:#bfe0cd;background:#e6f6ed;color:#14664a}
+.srcstatus span.err{border-color:#f0c9c9;background:#fdeaea;color:#a52626}
+.srcstatus span.busy{border-color:#f0d3a8;background:#fff3e2;color:#8f620f}
+.live-sub{margin-top:10px;font-size:11.2px;color:var(--ink3);line-height:1.7;background:#f6f9fc;border:1px dashed var(--line);border-radius:10px;padding:9px 11px}
+.live-sub b{color:var(--ink)}
+.live-insight{margin-top:9px;font-size:11.6px;line-height:1.78;color:var(--ink2);background:linear-gradient(140deg,#fffaf0,#fff5e2);border:1px solid #f0dfb4;border-radius:11px;padding:10px 12px}
+.live-insight b{color:#8f620f;display:block;margin-bottom:3px;font-size:11.8px}
+@media (max-width:1180px){.quote-grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr))}}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="title-badge">FX1 · THE FOREX 3-SESSION TRADING SYSTEM</div>
+    <h1>24 小時外匯交易週期圖 · 香港時間（HKT / UTC+8）互動版</h1>
+    <p class="sub">依據 <b>FX1《The Forex 3-Session Trading System》</b> 的三時段架構，以香港時間為主軸劃分 16 個精細交易時段；外圈標示 24 小時內<b>關聯度最高的央行決策、宏觀數據與突發風險窗口</b>。紅色指標線實時走動、<b>每逢整點自動切換時段並重繪 AI 市場簡報</b>。系統內建<b>星期一至日</b>交易日邏輯：現貨外匯每週交易五日（週一 06:00 至週六 06:00 HKT），週末休市期間自動切換為「休市模式」。</p>
+  </div>
+  <div class="src">
+    基準架構：<b>FX1 三時段交易系統</b> ＋ 市場快照 <b>2026-11-14（週六）紐約收市</b><br>
+    時區換算：<b>標準時間 ET = UTC−5</b> ・ <b>HKT = UTC+8（ET+13）</b>
+    <div><span class="nowchip" id="nowChip"><i></i><span id="nowTxt">載入時間中…</span></span></div>
+    <div style="margin-top:5px" id="nextTxt">下次自動更新：—</div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <span class="lab">新聞圖層</span>
+  <span class="chip on" data-cat="cb" style="background:#c62828"><i style="background:#fff"></i>央行政策</span>
+  <span class="chip on" data-cat="data" style="background:#1565c0"><i style="background:#fff"></i>經濟數據</span>
+  <span class="chip on" data-cat="geo" style="background:#ef6c00"><i style="background:#fff"></i>地緣政治</span>
+  <span class="chip on" data-cat="brk" style="background:#6a1b9a"><i style="background:#fff"></i>突發風險</span>
+  <span class="lab" style="margin-left:6px">星期</span>
+  <span class="days" id="dayBtns"></span>
+  <span style="flex:1"></span>
+  <span class="scrub">預覽時段 <input type="range" id="scrub" min="0" max="1439" value="0" step="5"/><b id="scrubLbl">現在</b></span>
+  <button class="btn" id="btnNow">回到現在</button>
+  <button class="btn" id="btnCopy">複製簡報</button>
+  <button class="btn pri" id="btnRefresh">立即重新生成</button>
+  <button class="btn pri" id="btnLive" title="實際連線抓取：外匯即時報價（1 分鐘解析度）、黃金、加密貨幣、財經頭條。抓取結果會寫入 AI 市場簡報。">⟳ 更新即時數據</button>
+  <span style="font-size:10.4px;color:#9aa9bb;font-weight:600;white-space:nowrap">開檔自動抓取一次 · 另每 30 分鐘自動更新</span>
+</div>
+
+<div class="ticker" id="ticker">
+  <div class="tk"><div class="k">美元指數 DXY</div><div class="v ph" id="tkDXY">—</div></div>
+  <div class="tk"><div class="k">EUR/USD</div><div class="v ph" id="tkEURUSD">—</div></div>
+  <div class="tk"><div class="k">USD/JPY</div><div class="v ph" id="tkUSDJPY">—</div></div>
+  <div class="tk"><div class="k">GBP/USD</div><div class="v ph" id="tkGBPUSD">—</div></div>
+  <div class="tk"><div class="k">AUD/USD</div><div class="v ph" id="tkAUDUSD">—</div></div>
+  <div class="tk"><div class="k">USD/CAD</div><div class="v ph" id="tkUSDCAD">—</div></div>
+  <div class="tk"><div class="k">USD/CHF</div><div class="v ph" id="tkUSDCHF">—</div></div>
+  <div class="tk"><div class="k">USD/CNH</div><div class="v ph" id="tkUSDCNH">—</div></div>
+  <div class="tk"><div class="k">黃金 XAU/USD</div><div class="v ph" id="tkXAU">—</div></div>
+  <div class="tk"><div class="k">比特幣 BTC</div><div class="v ph" id="tkBTC">—</div></div>
+</div>
+
+<div class="layout">
+  <!-- Left Hand Side (2/3 Width): Maximized & Pinned 24H Cycle Circle -->
+  <section class="left-pane">
+    <div class="card">
+      <div class="wheelwrap" id="wheelWrap">
+        <svg id="wheel" viewBox="-30 -30 860 860" role="img" aria-label="24小時外匯交易週期圖（香港時間 HKT）含新聞與數據層">
+          <defs>
+            <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0b2545" flood-opacity="0.18"/>
+            </filter>
+            <filter id="act" x="-30%" y="-30%" width="160%" height="160%">
+              <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#c98a1e" flood-opacity="0.55"/>
+            </filter>
+          </defs>
+          <circle cx="400" cy="400" r="394" fill="#fbfdff" stroke="#d9e2ee" stroke-width="2"/>
+
+          <!-- 16 Wedges -->
+          <g class="wedge" data-i="0" tabindex="0"><title>歐美重疊尾段 Overlap Tail｜HKT 00:00–01:00</title>
+            <path d="M400,10 A390,390 0 0 1 500.94,23.29 L478.16,108.29 A302,302 0 0 0 400,98 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="1.4"/>
+            <path d="M400,10 A390,390 0 0 1 500.94,23.29 L478.16,108.29 A302,302 0 0 0 400,98 Z" fill="none" stroke="#c98a1e" stroke-width="2.6" opacity="0.55"/>
+            <path d="M400,8 A392,392 0 0 1 501.46,21.36 L500.94,23.29 A390,390 0 0 0 400,10 Z" fill="#c98a1e" opacity="0.95"/>
+            <g transform="translate(430.83,58.34) scale(1.04)" fill="none" stroke="#8f620f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16 L7 9 L11 12.5 L15.5 4.5"/><path d="M11.3 4.3 L15.5 4.5 L15.7 8.7"/></g>
+            <text transform="translate(440.59,91.66) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#8f620f">看：歐洲＋美國</text>
+            <text transform="translate(448.82,29.2) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">歐美重疊尾段</text>
+            <text transform="translate(446.86,44.07) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Overlap Tail</text>
+            <text transform="translate(479.84,24.39) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#c98a1e">★</text>
+          </g>
+
+          <g class="wedge" data-i="1" tabindex="0"><title>紐約尾市 NY Late Session｜HKT 01:00–02:00</title>
+            <path d="M500.94,23.29 A390,390 0 0 1 595,62.25 L551,138.46 A302,302 0 0 0 478.16,108.29 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+            <path d="M501.46,21.36 A392,392 0 0 1 596,60.52 L595,62.25 A390,390 0 0 0 500.94,23.29 Z" fill="#d1622a" opacity="0.45"/>
+            <g transform="translate(514.55,80.77) scale(1.04)" fill="none" stroke="#9c4519" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v6M5 15v6"/><rect x="3" y="6" width="4" height="6" rx="1"/><path d="M12 2v8M12 16v6"/><rect x="10" y="7" width="4" height="7" rx="1"/><path d="M19 4v5M19 14v6"/><rect x="17" y="6" width="4" height="6" rx="1"/></g>
+            <text transform="translate(519.01,112.67) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#9c4519">看：美國</text>
+            <text transform="translate(543.12,54.47) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">紐約尾市</text>
+            <text transform="translate(537.38,68.33) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">NY Late Session</text>
+          </g>
+
+          <g class="wedge" data-i="2" tabindex="0"><title>亞洲待市 Pre-Asia Handoff｜HKT 02:00–03:00</title>
+            <path d="M595,62.25 A390,390 0 0 1 675.77,124.23 L613.55,186.45 A302,302 0 0 0 551,138.46 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+            <path d="M596,60.52 A392,392 0 0 1 677.19,122.81 L675.77,124.23 A390,390 0 0 0 595,62.25 Z" fill="#8496ab" opacity="0.45"/>
+            <g transform="translate(589.61,124.11) scale(1.04)" fill="none" stroke="#5b6b7d" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h7"/><path d="M11 12l5-6M11 12l5 6"/><circle cx="18" cy="6" r="1.6"/><circle cx="18" cy="18" r="1.6"/></g>
+            <text transform="translate(589.32,153.27) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#5b6b7d">看：過渡期</text>
+            <text transform="translate(627.68,103.29) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲待市</text>
+            <text transform="translate(618.55,115.19) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Pre-Asia Handoff</text>
+          </g>
+
+          <g class="wedge" data-i="3" tabindex="0"><title>流動性靜淡 Liquidity Lull｜HKT 03:00–06:00</title>
+            <path d="M675.77,124.23 A390,390 0 0 1 790,400 L702,400 A302,302 0 0 0 613.55,186.45 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+            <path d="M677.19,122.81 A392,392 0 0 1 792,400 L790,400 A390,390 0 0 0 675.77,124.23 Z" fill="#8496ab" opacity="0.45"/>
+            <g transform="translate(694.23,260.45) scale(1.04)" fill="none" stroke="#5b6b7d" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5.4l3.4 2"/></g>
+            <text transform="translate(687.33,280.99) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#5b6b7d">看：亞洲休市</text>
+            <text transform="translate(745.53,256.88) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">流動性靜淡</text>
+            <text transform="translate(731.67,262.62) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Liquidity Lull</text>
+          </g>
+
+          <g class="wedge" data-i="4" tabindex="0"><title>東京開市 Tokyo Open｜HKT 06:00–07:00</title>
+            <path d="M790,400 A390,390 0 0 1 776.71,500.94 L691.71,478.16 A302,302 0 0 0 702,400 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+            <path d="M790,400 A390,390 0 0 1 776.71,500.94 L691.71,478.16 A302,302 0 0 0 702,400 Z" fill="none" stroke="#2f6fb0" stroke-width="2.6" opacity="0.55"/>
+            <path d="M792,400 A392,392 0 0 1 778.64,501.46 L776.71,500.94 A390,390 0 0 0 790,400 Z" fill="#2f6fb0" opacity="0.95"/>
+            <g transform="translate(716.66,430.83) scale(1.04)" fill="none" stroke="#1e4f80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v6M5 15v6"/><rect x="3" y="6" width="4" height="6" rx="1"/><path d="M12 2v8M12 16v6"/><rect x="10" y="7" width="4" height="7" rx="1"/><path d="M19 4v5M19 14v6"/><rect x="17" y="6" width="4" height="6" rx="1"/></g>
+            <text transform="translate(708.34,440.59) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+            <text transform="translate(770.8,448.82) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">東京開市</text>
+            <text transform="translate(755.93,446.86) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Tokyo Open</text>
+            <text transform="translate(775.61,479.84) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#2f6fb0">★</text>
+          </g>
+
+          <g class="wedge" data-i="5" tabindex="0"><title>亞洲承接 Asia Takeover｜HKT 07:00–08:00</title>
+            <path d="M776.71,500.94 A390,390 0 0 1 737.75,595 L661.54,551 A302,302 0 0 0 691.71,478.16 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+            <path d="M778.64,501.46 A392,392 0 0 1 739.48,596 L737.75,595 A390,390 0 0 0 776.71,500.94 Z" fill="#2f6fb0" opacity="0.45"/>
+            <g transform="translate(694.23,514.55) scale(1.04)" fill="none" stroke="#1e4f80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.6 2.4 4 5.4 4 8.5s-1.4 6.1-4 8.5c-2.6-2.4-4-5.4-4-8.5s1.4-6.1 4-8.5z"/></g>
+            <text transform="translate(687.33,519.01) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+            <text transform="translate(745.53,543.12) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲承接</text>
+            <text transform="translate(731.67,537.38) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Asia Takeover</text>
+          </g>
+
+          <g class="wedge" data-i="6" tabindex="0"><title>亞洲流動性 Asian Liquidity｜HKT 08:00–10:00</title>
+            <path d="M737.75,595 A390,390 0 0 1 595,737.75 L551,661.54 A302,302 0 0 0 661.54,551 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+            <path d="M739.48,596 A392,392 0 0 1 596,739.48 L595,737.75 A390,390 0 0 0 737.75,595 Z" fill="#2f6fb0" opacity="0.45"/>
+            <g transform="translate(622.26,622.26) scale(1.04)" fill="none" stroke="#1e4f80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c2.6 2.4 4 5.4 4 8.5s-1.4 6.1-4 8.5c-2.6-2.4-4-5.4-4-8.5s1.4-6.1 4-8.5z"/></g>
+            <text transform="translate(619.91,619.91) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+            <text transform="translate(664.46,664.46) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲流動性</text>
+            <text transform="translate(653.85,653.85) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Asian Liquidity</text>
+          </g>
+
+          <g class="wedge" data-i="7" tabindex="0"><title>亞洲盤整固 Asian Range｜HKT 10:00–12:00</title>
+            <path d="M595,737.75 A390,390 0 0 1 400,790 L400,702 A302,302 0 0 0 551,661.54 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+            <path d="M596,739.48 A392,392 0 0 1 400,792 L400,790 A390,390 0 0 0 595,737.75 Z" fill="#2f6fb0" opacity="0.45"/>
+            <g transform="translate(473.43,708.19) scale(1.04)" fill="none" stroke="#1e4f80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.2"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/></g>
+            <text transform="translate(480.49,700.4) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+            <text transform="translate(496.8,761.26) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲盤整固</text>
+            <text transform="translate(492.92,746.77) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Asian Range</text>
+          </g>
+
+          <g class="wedge" data-i="8" tabindex="0"><title>亞洲午後 Asia Afternoon｜HKT 12:00–15:00</title>
+            <path d="M400,790 A390,390 0 0 1 124.23,675.77 L186.45,613.55 A302,302 0 0 0 400,702 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+            <path d="M400,792 A392,392 0 0 1 122.81,677.19 L124.23,675.77 A390,390 0 0 0 400,790 Z" fill="#2f6fb0" opacity="0.45"/>
+            <g transform="translate(260.45,694.23) scale(1.04)" fill="none" stroke="#1e4f80" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="15" height="15" rx="1.6"/><path d="M18 9h3v9.5a1.5 1.5 0 0 1-3 0z"/><path d="M6 9h9M6 12.5h9M6 16h6"/></g>
+            <text transform="translate(280.99,687.33) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+            <text transform="translate(256.88,745.53) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲午後</text>
+            <text transform="translate(262.62,731.67) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Asia Afternoon</text>
+          </g>
+
+          <g class="wedge" data-i="9" tabindex="0"><title>倫敦鋪墊 Pre-London Uptick｜HKT 15:00–16:00</title>
+            <path d="M124.23,675.77 A390,390 0 0 1 62.25,595 L138.46,551 A302,302 0 0 0 186.45,613.55 Z" fill="#dcf1ef" stroke="#1f8f86" stroke-width="1.4"/>
+            <path d="M124.23,675.77 A390,390 0 0 1 62.25,595 L138.46,551 A302,302 0 0 0 186.45,613.55 Z" fill="none" stroke="#1f8f86" stroke-width="2.6" opacity="0.55"/>
+            <path d="M122.81,677.19 A392,392 0 0 1 60.52,596 L62.25,595 A390,390 0 0 0 124.23,675.77 Z" fill="#1f8f86" opacity="0.95"/>
+            <g transform="translate(124.11,589.61) scale(1.04)" fill="none" stroke="#0f5f59" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 2.5L5 13.5h6L10 21.5 19 10.5h-6z"/></g>
+            <text transform="translate(153.27,589.32) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f59">看：亞洲→歐洲</text>
+            <text transform="translate(103.29,627.68) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦鋪墊</text>
+            <text transform="translate(115.19,618.55) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Pre-London Uptick</text>
+            <text transform="translate(77.95,609.14) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#1f8f86">★</text>
+          </g>
+
+          <g class="wedge" data-i="10" tabindex="0"><title>亞歐重疊 Asia/Europe Overlap｜HKT 16:00–17:00</title>
+            <path d="M62.25,595 A390,390 0 0 1 23.29,500.94 L108.29,478.16 A302,302 0 0 0 138.46,551 Z" fill="#ece2fb" stroke="#7b4fd0" stroke-width="1.4"/>
+            <path d="M62.25,595 A390,390 0 0 1 23.29,500.94 L108.29,478.16 A302,302 0 0 0 138.46,551 Z" fill="none" stroke="#7b4fd0" stroke-width="4.4" opacity="0.95"/>
+            <path d="M60.52,596 A392,392 0 0 1 21.36,501.46 L23.29,500.94 A390,390 0 0 0 62.25,595 Z" fill="#7b4fd0" opacity="0.95"/>
+            <g transform="translate(80.77,514.55) scale(1.04)" fill="none" stroke="#57349b" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></g>
+            <text transform="translate(112.67,519.01) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#57349b">看：亞洲＋歐洲</text>
+            <text transform="translate(54.47,543.12) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞歐重疊</text>
+            <text transform="translate(68.33,537.38) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Asia/Europe Overlap</text>
+            <text transform="translate(34.79,518.66) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#7b4fd0">★</text>
+          </g>
+
+          <g class="wedge" data-i="11" tabindex="0"><title>倫敦早盤突破 London Breakout｜HKT 17:00–18:00</title>
+            <path d="M23.29,500.94 A390,390 0 0 1 10,400 L98,400 A302,302 0 0 0 108.29,478.16 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+            <path d="M23.29,500.94 A390,390 0 0 1 10,400 L98,400 A302,302 0 0 0 108.29,478.16 Z" fill="none" stroke="#1c8a5a" stroke-width="2.6" opacity="0.55"/>
+            <path d="M21.36,501.46 A392,392 0 0 1 8,400 L10,400 A390,390 0 0 0 23.29,500.94 Z" fill="#1c8a5a" opacity="0.95"/>
+            <g transform="translate(58.34,430.83) scale(1.04)" fill="none" stroke="#0f5f3d" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><rect x="5" y="12" width="3.4" height="8" rx="1"/><rect x="10.3" y="8" width="3.4" height="12" rx="1"/><rect x="15.6" y="4" width="3.4" height="16" rx="1"/></g>
+            <text transform="translate(91.66,440.59) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+            <text transform="translate(29.2,448.82) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦早盤突破</text>
+            <text transform="translate(44.07,446.86) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">London Breakout</text>
+            <text transform="translate(16.53,420.1) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#1c8a5a">★</text>
+          </g>
+
+          <g class="wedge" data-i="12" tabindex="0"><title>倫敦動能 London Momentum｜HKT 18:00–20:00</title>
+            <path d="M10,400 A390,390 0 0 1 62.25,205 L138.46,249 A302,302 0 0 0 98,400 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+            <path d="M10,400 A390,390 0 0 1 62.25,205 L138.46,249 A302,302 0 0 0 98,400 Z" fill="none" stroke="#1c8a5a" stroke-width="2.6" opacity="0.55"/>
+            <path d="M8,400 A392,392 0 0 1 60.52,204 L62.25,205 A390,390 0 0 0 10,400 Z" fill="#1c8a5a" opacity="0.95"/>
+            <g transform="translate(66.81,301.57) scale(1.04)" fill="none" stroke="#0f5f3d" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17.5L9 11l4 3.6L20.5 5"/><path d="M15.5 5h5v5"/></g>
+            <text transform="translate(99.6,319.51) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+            <text transform="translate(38.74,303.2) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦動能</text>
+            <text transform="translate(53.23,307.08) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">London Momentum</text>
+            <text transform="translate(49.2,243.81) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#1c8a5a">★</text>
+          </g>
+
+          <g class="wedge" data-i="13" tabindex="0"><title>倫敦轉折 London Reversal｜HKT 20:00–21:00</title>
+            <path d="M62.25,205 A390,390 0 0 1 124.23,124.23 L186.45,186.45 A302,302 0 0 0 138.46,249 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+            <path d="M62.25,205 A390,390 0 0 1 124.23,124.23 L186.45,186.45 A302,302 0 0 0 138.46,249 Z" fill="none" stroke="#1c8a5a" stroke-width="2.6" opacity="0.55"/>
+            <path d="M60.52,204 A392,392 0 0 1 122.81,122.81 L124.23,124.23 A390,390 0 0 0 62.25,205 Z" fill="#1c8a5a" opacity="0.95"/>
+            <g transform="translate(124.11,185.39) scale(1.04)" fill="none" stroke="#0f5f3d" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16 L7 9 L11 12.5 L15.5 4.5"/><path d="M11.3 4.3 L15.5 4.5 L15.7 8.7"/></g>
+            <text transform="translate(153.27,210.68) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+            <text transform="translate(103.29,172.32) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦轉折</text>
+            <text transform="translate(115.19,181.45) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">London Reversal</text>
+            <text transform="translate(114.63,143.05) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#1c8a5a">★</text>
+          </g>
+
+          <g class="wedge" data-i="14" tabindex="0"><title>紐約開市 NY Open｜HKT 21:00–22:00</title>
+            <path d="M124.23,124.23 A390,390 0 0 1 205,62.25 L249,138.46 A302,302 0 0 0 186.45,186.45 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+            <path d="M124.23,124.23 A390,390 0 0 1 205,62.25 L249,138.46 A302,302 0 0 0 186.45,186.45 Z" fill="none" stroke="#d1622a" stroke-width="2.6" opacity="0.55"/>
+            <path d="M122.81,122.81 A392,392 0 0 1 204,60.52 L205,62.25 A390,390 0 0 0 124.23,124.23 Z" fill="#d1622a" opacity="0.95"/>
+            <g transform="translate(185.39,124.11) scale(1.04)" fill="none" stroke="#9c4519" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.2a3.2 3.2 0 0 0-5.2 1.1c-.5 1.9 1 2.4 2.6 2.8 1.6.4 3.1.9 2.6 2.8a3.2 3.2 0 0 1-5.2 1.1"/><path d="M12 6.6v10.8"/></g>
+            <text transform="translate(210.68,153.27) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#9c4519">看：美國</text>
+            <text transform="translate(172.32,103.29) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">紐約開市</text>
+            <text transform="translate(181.45,115.19) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">NY Open</text>
+            <text transform="translate(190.86,77.95) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#d1622a">★</text>
+          </g>
+
+          <g class="wedge" data-i="15" tabindex="0"><title>歐美重疊核心 Core EU/NA Overlap｜HKT 22:00–24:00</title>
+            <path d="M205,62.25 A390,390 0 0 1 400,10 L400,98 A302,302 0 0 0 249,138.46 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="1.4"/>
+            <path d="M205,62.25 A390,390 0 0 1 400,10 L400,98 A302,302 0 0 0 249,138.46 Z" fill="none" stroke="#c98a1e" stroke-width="4.4" opacity="0.95"/>
+            <path d="M204,60.52 A392,392 0 0 1 400,8 L400,10 A390,390 0 0 0 205,62.25 Z" fill="#c98a1e" opacity="0.95"/>
+            <g transform="translate(301.57,66.81) scale(1.04)" fill="none" stroke="#8f620f" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><rect x="4.5" y="13" width="3.2" height="7" rx="1"/><rect x="9.3" y="9" width="3.2" height="11" rx="1"/><rect x="14.1" y="5" width="3.2" height="15" rx="1"/><path d="M19 4.5v9M19 4.5l-2.6 2.6M19 4.5l2.6 2.6"/></g>
+            <text transform="translate(319.51,99.6) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#8f620f">看：歐洲＋美國</text>
+            <text transform="translate(303.2,38.74) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">歐美重疊核心</text>
+            <text transform="translate(307.08,53.23) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d" font-family="'Inter','Segoe UI',sans-serif">Core EU/NA Overlap</text>
+            <text transform="translate(359.86,18.1) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#c98a1e">★</text>
+          </g>
+
+          <!-- Hour Rings -->
+          <circle cx="400" cy="400" r="300" fill="#eef4fb" stroke="#dbe4ef" stroke-width="1.2"/>
+          <circle cx="400" cy="400" r="272" fill="none" stroke="#dbe4ef" stroke-width="1.2"/>
+          <circle cx="400" cy="400" r="248" fill="#f4f6f9" stroke="#dbe4ef" stroke-width="1.2"/>
+
+          <!-- 24 Hour Ticks & Labels -->
+          <g font-family="'Inter','Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central">
+            <line x1="400" y1="100" x2="400" y2="109" stroke="#a9bace" stroke-width="1.7"/><text x="400" y="114" font-size="11" font-weight="800" fill="#12263f">00</text><text x="400" y="152" font-size="7.4" fill="#93a3b6">16</text>
+            <line x1="477.65" y1="110.22" x2="475.32" y2="118.92" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="474.02" y="123.75" font-size="9.6" font-weight="700" fill="#41546b">01</text><text x="464.19" y="160.45" font-size="7.4" fill="#93a3b6">17</text>
+            <line x1="550" y1="140.19" x2="545.5" y2="147.99" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="543" y="152.32" font-size="9.6" font-weight="700" fill="#41546b">02</text><text x="524" y="185.23" font-size="7.4" fill="#93a3b6">18</text>
+            <line x1="612.13" y1="187.87" x2="605.77" y2="194.23" stroke="#a9bace" stroke-width="1.7"/><text x="602.23" y="197.77" font-size="11" font-weight="800" fill="#12263f">03</text><text x="575.36" y="224.64" font-size="7.4" fill="#93a3b6">19</text>
+            <line x1="659.81" y1="250" x2="652.01" y2="254.5" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="647.68" y="257" font-size="9.6" font-weight="700" fill="#41546b">04</text><text x="614.77" y="276" font-size="7.4" fill="#93a3b6">20</text>
+            <line x1="689.78" y1="322.35" x2="681.08" y2="324.68" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="676.25" y="325.98" font-size="9.6" font-weight="700" fill="#41546b">05</text><text x="639.55" y="335.81" font-size="7.4" fill="#93a3b6">21</text>
+            <line x1="700" y1="400" x2="691" y2="400" stroke="#a9bace" stroke-width="1.7"/><text x="686" y="400" font-size="11" font-weight="800" fill="#12263f">06</text><text x="648" y="400" font-size="7.4" fill="#93a3b6">22</text>
+            <line x1="689.78" y1="477.65" x2="681.08" y2="475.32" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="676.25" y="474.02" font-size="9.6" font-weight="700" fill="#41546b">07</text><text x="639.55" y="464.19" font-size="7.4" fill="#93a3b6">23</text>
+            <line x1="659.81" y1="550" x2="652.01" y2="545.5" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="647.68" y="543" font-size="9.6" font-weight="700" fill="#41546b">08</text><text x="614.77" y="524" font-size="7.4" fill="#93a3b6">00</text>
+            <line x1="612.13" y1="612.13" x2="605.77" y2="605.77" stroke="#a9bace" stroke-width="1.7"/><text x="602.23" y="602.23" font-size="11" font-weight="800" fill="#12263f">09</text><text x="575.36" y="575.36" font-size="7.4" fill="#93a3b6">01</text>
+            <line x1="550" y1="659.81" x2="545.5" y2="652.01" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="543" y="647.68" font-size="9.6" font-weight="700" fill="#41546b">10</text><text x="524" y="614.77" font-size="7.4" fill="#93a3b6">02</text>
+            <line x1="477.65" y1="689.78" x2="475.32" y2="681.08" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="474.02" y="676.25" font-size="9.6" font-weight="700" fill="#41546b">11</text><text x="464.19" y="639.55" font-size="7.4" fill="#93a3b6">03</text>
+            <line x1="400" y1="700" x2="400" y2="691" stroke="#a9bace" stroke-width="1.7"/><text x="400" y="686" font-size="11" font-weight="800" fill="#12263f">12</text><text x="400" y="648" font-size="7.4" fill="#93a3b6">04</text>
+            <line x1="322.35" y1="689.78" x2="324.68" y2="681.08" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="325.98" y="676.25" font-size="9.6" font-weight="700" fill="#41546b">13</text><text x="335.81" y="639.55" font-size="7.4" fill="#93a3b6">05</text>
+            <line x1="250" y1="659.81" x2="254.5" y2="652.01" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="257" y="647.68" font-size="9.6" font-weight="700" fill="#41546b">14</text><text x="276" y="614.77" font-size="7.4" fill="#93a3b6">06</text>
+            <line x1="187.87" y1="612.13" x2="194.23" y2="605.77" stroke="#a9bace" stroke-width="1.7"/><text x="197.77" y="602.23" font-size="11" font-weight="800" fill="#12263f">15</text><text x="224.64" y="575.36" font-size="7.4" fill="#93a3b6">07</text>
+            <line x1="140.19" y1="550" x2="147.99" y2="545.5" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="152.32" y="543" font-size="9.6" font-weight="700" fill="#41546b">16</text><text x="185.23" y="524" font-size="7.4" fill="#93a3b6">08</text>
+            <line x1="110.22" y1="477.65" x2="118.92" y2="475.32" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="123.75" y="474.02" font-size="9.6" font-weight="700" fill="#41546b">17</text><text x="160.45" y="464.19" font-size="7.4" fill="#93a3b6">09</text>
+            <line x1="100" y1="400" x2="109" y2="400" stroke="#a9bace" stroke-width="1.7"/><text x="114" y="400" font-size="11" font-weight="800" fill="#12263f">18</text><text x="152" y="400" font-size="7.4" fill="#93a3b6">10</text>
+            <line x1="110.22" y1="322.35" x2="118.92" y2="324.68" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="123.75" y="325.98" font-size="9.6" font-weight="700" fill="#41546b">19</text><text x="160.45" y="335.81" font-size="7.4" fill="#93a3b6">11</text>
+            <line x1="140.19" y1="250" x2="147.99" y2="254.5" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="152.32" y="257" font-size="9.6" font-weight="700" fill="#41546b">20</text><text x="185.23" y="276" font-size="7.4" fill="#93a3b6">12</text>
+            <line x1="187.87" y1="187.87" x2="194.23" y2="194.23" stroke="#a9bace" stroke-width="1.7"/><text x="197.77" y="197.77" font-size="11" font-weight="800" fill="#12263f">21</text><text x="224.64" y="224.64" font-size="7.4" fill="#93a3b6">13</text>
+            <line x1="250" y1="140.19" x2="254.5" y2="147.99" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="257" y="152.32" font-size="9.6" font-weight="700" fill="#41546b">22</text><text x="276" y="185.23" font-size="7.4" fill="#93a3b6">14</text>
+            <line x1="322.35" y1="110.22" x2="324.68" y2="118.92" stroke="#a9bace" stroke-width="0.9" opacity="0.55"/><text x="325.98" y="123.75" font-size="9.6" font-weight="700" fill="#41546b">23</text><text x="335.81" y="160.45" font-size="7.4" fill="#93a3b6">15</text>
+          </g>
+
+          <!-- Session Arcs (Asia 07-17, Europe 16-01, NA 21-06) -->
+          <path d="M639.55,464.19 A248,248 0 0 1 160.45,464.19 L185.56,457.46 A222,222 0 0 0 614.44,457.46 Z" fill="#2f6fb0" opacity="0.92"/>
+          <path d="M207.74,511 A222,222 0 0 1 457.46,185.56 L450.73,210.68 A196,196 0 0 0 230.26,498 Z" fill="#1c8a5a" opacity="0.92"/>
+          <path d="M261.41,261.41 A196,196 0 0 1 596,400 L570,400 A170,170 0 0 0 279.79,279.79 Z" fill="#d1622a" opacity="0.92"/>
+
+          <!-- Overlap Highlights (AE: 16:00-17:00, ENA: 21:00-01:00) -->
+          <g class="ovl" data-ovl="AE">
+            <path d="M185.23,524 A248,248 0 0 1 160.45,464.19 L235.79,444 A170,170 0 0 0 252.78,485 Z" fill="#7b4fd0" opacity="0.28"/>
+            <path d="M185.23,524 A248,248 0 0 1 160.45,464.19 L235.79,444 A170,170 0 0 0 252.78,485 Z" fill="none" stroke="#57349b" stroke-width="2.2"/>
+          </g>
+          <g class="ovl" data-ovl="ENA">
+            <path d="M224.64,224.64 A248,248 0 0 1 464.19,160.45 L444,235.79 A170,170 0 0 0 279.79,279.79 Z" fill="#c98a1e" opacity="0.30"/>
+            <path d="M224.64,224.64 A248,248 0 0 1 464.19,160.45 L444,235.79 A170,170 0 0 0 279.79,279.79 Z" fill="none" stroke="#8f620f" stroke-width="2.2"/>
+          </g>
+
+          <!-- Session Arc Labels -->
+          <text transform="translate(400,641)" text-anchor="middle" dominant-baseline="central" font-size="12.8" font-weight="800" fill="#ffffff">亞洲 · 東京</text>
+          <text transform="translate(400,628)" text-anchor="middle" dominant-baseline="central" font-size="7.6" font-weight="700" fill="#ffffff" opacity="0.92" font-family="'Inter','Segoe UI',sans-serif">ASIA / TOKYO · 07:00–17:00</text>
+          <text transform="translate(229.43,269.12) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="12.8" font-weight="800" fill="#ffffff">歐洲 · 倫敦</text>
+          <text transform="translate(239.74,277.03) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="7.6" font-weight="700" fill="#ffffff" opacity="0.92" font-family="'Inter','Segoe UI',sans-serif">EUROPE / LONDON · 16:00–01:00</text>
+          <text transform="translate(472.33,225.39) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="12.8" font-weight="800" fill="#ffffff">北美 · 紐約</text>
+          <text transform="translate(467.35,237.4) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="7.6" font-weight="700" fill="#ffffff" opacity="0.92" font-family="'Inter','Segoe UI',sans-serif">NORTH AMERICA / NY · 21:00–06:00</text>
+
+          <!-- Inner Ring Character Labels -->
+          <path d="M400,230 A170,170 0 0 1 444,235.79 L431.06,284.09 A120,120 0 0 0 400,280 Z" fill="#ffffff" stroke="#c98a1e" stroke-width="1.1"/>
+          <path d="M400,230 A170,170 0 0 1 444,235.79 L441.67,244.49 A161,161 0 0 0 400,239 Z" fill="#c98a1e" opacity="0.32"/>
+          <text transform="translate(418.93,256.24) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">獲利回吐</text>
+
+          <path d="M444,235.79 A170,170 0 0 1 485,252.78 L460,296.08 A120,120 0 0 0 431.06,284.09 Z" fill="#ffffff" stroke="#d1622a" stroke-width="1.1"/>
+          <path d="M444,235.79 A170,170 0 0 1 485,252.78 L480.5,260.57 A161,161 0 0 0 441.67,244.49 Z" fill="#d1622a" opacity="0.32"/>
+          <text transform="translate(455.49,266.04) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">波動遞減</text>
+
+          <path d="M485,252.78 A170,170 0 0 1 520.21,279.79 L484.85,315.15 A120,120 0 0 0 460,296.08 Z" fill="#ffffff" stroke="#8496ab" stroke-width="1.1"/>
+          <path d="M485,252.78 A170,170 0 0 1 520.21,279.79 L513.84,286.16 A161,161 0 0 0 480.5,260.57 Z" fill="#8496ab" opacity="0.32"/>
+          <text transform="translate(488.27,284.96) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">交接真空</text>
+
+          <path d="M520.21,279.79 A170,170 0 0 1 570,400 L520,400 A120,120 0 0 0 484.85,315.15 Z" fill="#ffffff" stroke="#8496ab" stroke-width="1.1"/>
+          <path d="M520.21,279.79 A170,170 0 0 1 570,400 L561,400 A161,161 0 0 0 513.84,286.16 Z" fill="#8496ab" opacity="0.32"/>
+          <text transform="translate(533.96,344.51) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">低流動性</text>
+
+          <path d="M570,400 A170,170 0 0 1 564.21,444 L515.91,431.06 A120,120 0 0 0 520,400 Z" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.1"/>
+          <path d="M570,400 A170,170 0 0 1 564.21,444 L555.51,441.67 A161,161 0 0 0 561,400 Z" fill="#2f6fb0" opacity="0.32"/>
+          <text transform="translate(543.76,418.93) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">跳空突破</text>
+
+          <path d="M564.21,444 A170,170 0 0 1 547.22,485 L503.92,460 A120,120 0 0 0 515.91,431.06 Z" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.1"/>
+          <path d="M564.21,444 A170,170 0 0 1 547.22,485 L539.43,480.5 A161,161 0 0 0 555.51,441.67 Z" fill="#2f6fb0" opacity="0.32"/>
+          <text transform="translate(533.96,455.49) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">承接方向</text>
+
+          <path d="M547.22,485 A170,170 0 0 1 485,547.22 L460,503.92 A120,120 0 0 0 503.92,460 Z" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.1"/>
+          <path d="M547.22,485 A170,170 0 0 1 485,547.22 L480.5,539.43 A161,161 0 0 0 539.43,480.5 Z" fill="#2f6fb0" opacity="0.32"/>
+          <text transform="translate(502.53,502.53) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">趨勢初成</text>
+
+          <path d="M485,547.22 A170,170 0 0 1 400,570 L400,520 A120,120 0 0 0 460,503.92 Z" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.1"/>
+          <path d="M485,547.22 A170,170 0 0 1 400,570 L400,561 A161,161 0 0 0 480.5,539.43 Z" fill="#2f6fb0" opacity="0.32"/>
+          <text transform="translate(437.53,540.06) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">區間整理</text>
+
+          <path d="M400,570 A170,170 0 0 1 279.79,520.21 L315.15,484.85 A120,120 0 0 0 400,520 Z" fill="#ffffff" stroke="#2f6fb0" stroke-width="1.1"/>
+          <path d="M400,570 A170,170 0 0 1 279.79,520.21 L286.16,513.84 A161,161 0 0 0 400,561 Z" fill="#2f6fb0" opacity="0.32"/>
+          <text transform="translate(344.51,533.96) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">數據預期</text>
+
+          <path d="M279.79,520.21 A170,170 0 0 1 252.78,485 L296.08,460 A120,120 0 0 0 315.15,484.85 Z" fill="#ffffff" stroke="#1f8f86" stroke-width="1.1"/>
+          <path d="M279.79,520.21 A170,170 0 0 1 252.78,485 L260.57,480.5 A161,161 0 0 0 286.16,513.84 Z" fill="#1f8f86" opacity="0.32"/>
+          <text transform="translate(284.96,488.27) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">波幅擴大</text>
+
+          <path d="M252.78,485 A170,170 0 0 1 235.79,444 L284.09,431.06 A120,120 0 0 0 296.08,460 Z" fill="#ffffff" stroke="#7b4fd0" stroke-width="1.1"/>
+          <path d="M252.78,485 A170,170 0 0 1 235.79,444 L244.49,441.67 A161,161 0 0 0 260.57,480.5 Z" fill="#7b4fd0" opacity="0.32"/>
+          <text transform="translate(266.04,455.49) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">交叉盤活躍</text>
+
+          <path d="M235.79,444 A170,170 0 0 1 230,400 L280,400 A120,120 0 0 0 284.09,431.06 Z" fill="#ffffff" stroke="#1c8a5a" stroke-width="1.1"/>
+          <path d="M235.79,444 A170,170 0 0 1 230,400 L239,400 A161,161 0 0 0 244.49,441.67 Z" fill="#1c8a5a" opacity="0.32"/>
+          <text transform="translate(256.24,418.93) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">日內突破</text>
+
+          <path d="M230,400 A170,170 0 0 1 252.78,315 L296.08,340 A120,120 0 0 0 280,400 Z" fill="#ffffff" stroke="#1c8a5a" stroke-width="1.1"/>
+          <path d="M230,400 A170,170 0 0 1 252.78,315 L260.57,319.5 A161,161 0 0 0 239,400 Z" fill="#1c8a5a" opacity="0.32"/>
+          <text transform="translate(259.94,362.47) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">順勢動能</text>
+
+          <path d="M252.78,315 A170,170 0 0 1 279.79,279.79 L315.15,315.15 A120,120 0 0 0 296.08,340 Z" fill="#ffffff" stroke="#1c8a5a" stroke-width="1.1"/>
+          <path d="M252.78,315 A170,170 0 0 1 279.79,279.79 L286.16,286.16 A161,161 0 0 0 260.57,319.5 Z" fill="#1c8a5a" opacity="0.32"/>
+          <text transform="translate(284.96,311.73) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">高位反轉</text>
+
+          <path d="M279.79,279.79 A170,170 0 0 1 315,252.78 L340,296.08 A120,120 0 0 0 315.15,315.15 Z" fill="#ffffff" stroke="#d1622a" stroke-width="1.1"/>
+          <path d="M279.79,279.79 A170,170 0 0 1 315,252.78 L319.5,260.57 A161,161 0 0 0 286.16,286.16 Z" fill="#d1622a" opacity="0.32"/>
+          <text transform="translate(311.73,284.96) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">美元定價</text>
+
+          <path d="M315,252.78 A170,170 0 0 1 400,230 L400,280 A120,120 0 0 0 340,296.08 Z" fill="#ffffff" stroke="#c98a1e" stroke-width="1.1"/>
+          <path d="M315,252.78 A170,170 0 0 1 400,230 L400,239 A161,161 0 0 0 319.5,260.57 Z" fill="#c98a1e" opacity="0.32"/>
+          <text transform="translate(362.47,259.94) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="9.6" font-weight="700" fill="#33455a">最高量</text>
+
+          <!-- Guide Circles -->
+          <g fill="none" stroke="#c9d6e5" stroke-width="1" opacity="0.85">
+            <circle cx="400" cy="400" r="120"/>
+            <circle cx="400" cy="400" r="170"/>
+            <circle cx="400" cy="400" r="196"/>
+            <circle cx="400" cy="400" r="222"/>
+            <circle cx="400" cy="400" r="248"/>
+            <circle cx="400" cy="400" r="272"/>
+            <circle cx="400" cy="400" r="300"/>
+          </g>
+
+          <!-- Center Hub -->
+          <circle cx="400" cy="400" r="116" fill="#102941" stroke="#0a1c2e" stroke-width="2" filter="url(#soft)"/>
+          <circle cx="400" cy="400" r="106" fill="none" stroke="#3d6c96" stroke-width="1" opacity="0.5"/>
+          <text x="400" y="340" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8fb6d8" letter-spacing="2.4" font-family="'Inter','Segoe UI',sans-serif">24-HOUR</text>
+          <text x="400" y="370" text-anchor="middle" font-size="25" font-weight="800" fill="#ffffff">外匯交易週期</text>
+          <text x="400" y="391" text-anchor="middle" font-size="9.6" font-weight="700" fill="#8fb6d8" letter-spacing="1.6" font-family="'Inter','Segoe UI',sans-serif">FOREX TRADING CYCLE</text>
+          <line x1="338" y1="406" x2="462" y2="406" stroke="#3d6c96" stroke-width="1"/>
+          <text x="400" y="427" text-anchor="middle" font-size="12" font-weight="800" fill="#f2c14e">香港時間 HKT (UTC+8)</text>
+          <text x="400" y="445" text-anchor="middle" font-size="8.8" fill="#a8c4de">每週 5 日 · 週一 06:00 至週六 06:00</text>
+          <text x="400" y="467" text-anchor="middle" font-size="16" font-weight="800" fill="#ffffff" font-family="'Inter','Segoe UI',sans-serif">≈38%</text>
+          <text x="400" y="481" text-anchor="middle" font-size="8.2" fill="#8fb6d8">倫敦時段佔全球日成交量</text>
+          <text x="400" y="500" text-anchor="middle" font-size="7.8" fill="#6d8aa6" font-family="'Inter','Segoe UI',sans-serif">ET = UTC−5 ・ HKT = ET+13</text>
+
+          <g id="activeSeg" opacity="0"></g>
+          <circle cx="400" cy="400" r="404" fill="none" stroke="#dde5ef" stroke-width="8" stroke-dasharray="1 7" opacity="0.9"/>
+          <g id="eventLayer"></g>
+          <g id="nowMarker"></g>
+          <g id="previewMarker"></g>
+        </svg>
+        <div id="tip"></div>
+      </div>
+
+      <div class="legend">
+        <span><i class="sq" style="background:#eef4fb"></i>深藍大數字＝HKT</span>
+        <span><i class="sq" style="background:#f4f6f9"></i>灰小數字＝UTC</span>
+        <span><i style="background:#2f6fb0"></i>亞洲 07–17</span>
+        <span><i style="background:#1c8a5a"></i>歐洲 16–01</span>
+        <span><i style="background:#d1622a"></i>北美 21–06</span>
+        <span><i style="background:#7b4fd0"></i>亞歐重疊</span>
+        <span><i style="background:#c98a1e"></i>歐美重疊</span>
+        <span><i style="background:#e03a3a"></i>現在</span>
+        <span><i style="background:#f2c14e"></i>預覽</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Right Hand Side (1/3 Width): Independent Scrollable Data Panel -->
+  <aside id="rightScroll">
+    <div class="scrollhint">
+      <span>↕ 滾動右側資料區 · 左側圓盤固定對照</span>
+      <span style="font-weight:800;color:#2f6fb0;white-space:nowrap">2:1 視圖</span>
+    </div>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>時段詳情</h2>
+      <p class="hint">點擊左側任一扇區或外圈事件標記即可切換檢視；右側與簡報會同步更新。</p>
+      <div class="readout">
+        <div class="rt-top">
+          <span class="rt-zh" id="roZh">—</span>
+          <span class="rt-en" id="roEn"></span>
+          <span class="rt-badge" id="roBadge">—</span>
+        </div>
+        <div class="rt-time">
+          <div>星期<b id="roDay">—</b></div>
+          <div>香港時間<b id="roHkt">—</b></div>
+          <div>UTC<b id="roUtc">—</b></div>
+          <div>美東 ET<b id="roEt">—</b></div>
+        </div>
+        <p class="rt-line"><span class="lbl">市場狀態</span><b id="roState">—</b></p>
+        <p class="rt-line"><span class="lbl">應該看的時區表現</span><b id="roWatch">—</b></p>
+        <p class="rt-line"><span class="lbl">本時段操作建議</span><span id="roStrat">—</span></p>
+        <p class="rt-line"><span class="lbl">主要受影響貨幣對</span><b id="roPairs">—</b></p>
+        <div class="pillset" id="roPills"></div>
+      </div>
+    </section>
+
+    <div class="ai" id="aiPanel">
+      <div class="ai-head">
+        <span class="tag">AI 市場簡報</span>
+        <h3 id="aiTitle">—</h3>
+        <span class="ai-status st-open" id="aiStatus">—</span>
+        <div class="rt" id="aiStamp">—</div>
+      </div>
+      <div class="ai-body">
+        <div class="ai-day" id="aiDay">
+          <div class="ai-day-top">
+            <div class="dh">—</div>
+            <div class="dt">—</div>
+          </div>
+          <p id="aiDayTxt">—</p>
+        </div>
+        <div class="ai-grid" style="margin-top:11px">
+          <div class="ai-box" id="bxNow"><div class="h"><em>📈</em>外匯市場現況</div><p id="aiNow">—</p></div>
+          <div class="ai-box" id="bxGeo"><div class="h"><em>🌍</em>地緣政治 · 外交風波</div><p id="aiGeo">—</p></div>
+          <div class="ai-box" id="bxCb"><div class="h"><em>🏦</em>央行政策</div><p id="aiCb">—</p></div>
+          <div class="ai-box" id="bxData"><div class="h"><em>📊</em>數據公布 · 突發事件</div><p id="aiData">—</p></div>
+        </div>
+        <div class="ai-act" id="aiAct"><b>本時段操作重點 ▸</b> —</div>
+        <div class="ai-up" id="aiUp"><b>接下來 24 小時 ▸</b> —</div>
+      </div>
+    </div>
+
+    <section class="card" style="margin-bottom:16px" id="liveCard">
+      <h2>
+        <span style="width:9px;height:9px;border-radius:50%;background:#e03a3a;display:inline-block"></span>即時市場數據
+        <span class="live-badge" id="liveBadge">未更新</span>
+        <span style="margin-left:auto;font-size:10.5px;color:var(--muted);font-weight:600" id="liveTime">—</span>
+      </h2>
+      <p class="hint">按工具列「⟳ 更新即時數據」實際連線抓取：外匯報價（1 分鐘解析度）＋ 黃金 ＋ 加密貨幣 ＋ 財經頭條，抓取後會直接寫入上方 AI 市場簡報的「市場現況」。<br>數據源：fxratesapi.com（匯率／黃金，1 分鐘解析度）、CoinGecko（加密貨幣）、CNBC ＋ MarketWatch ＋ Google News（頭條）。漲跌顏色依中文慣例：<span style="color:#c0392b;font-weight:800">紅＝漲</span>、<span style="color:#1c8a5a;font-weight:800">綠＝跌</span>；變動幅度以 2026-11-14 收市快照為基準。</p>
+      <div class="quote-grid" id="quoteGrid">
+        <div class="quote"><div class="qk">等待抓取…</div><div class="qv ph">—</div></div>
+      </div>
+      <div class="live-sub" id="liveSub">尚未抓取即時數據。按上方按鈕即可取得外匯市場的即時現況。</div>
+      <div class="live-insight" id="liveInsight"><b>🔍 快速解讀</b><span id="liveInsightTxt">抓取後自動由即時報價與頭條推導。</span></div>
+      <h3 class="live-h3">📰 即時財經頭條<span style="font-weight:600;color:var(--muted);font-size:10.5px">（央行政策／經濟數據／地緣政治／突發風險 自動分類）</span></h3>
+      <div class="news-list" id="newsList"><div class="news-item"><span class="nd" style="background:#c3cedb"></span><div><div class="nt">尚未抓取頭條。</div></div></div></div>
+      <div class="srcstatus" id="srcStatus"></div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#c98a1e;display:inline-block"></span>本週高關聯事件（香港時間）</h2>
+      <p class="hint">來源：Capital Street FX《Week Ahead》2026-11-14。所有時間已換算為 HKT；點擊星期按鈕可對應檢視。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>日期</th><th>HKT</th><th>類別</th><th>事件</th><th>為何重要</th><th>衝擊</th></tr></thead>
+          <tbody>
+            <tr><td class="num">11/16<br><span style="font-weight:400;color:#8d9eb2">週一</span></td><td class="num"><b>07:50</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>日本第三季 GDP（初值）</b></td><td>23:50 GMT（週日）換算；為日圓交叉盤早盤定價基礎</td><td class="lvl">★★</td></tr>
+            <tr><td class="num">11/16<br><span style="font-weight:400;color:#8d9eb2">週一</span></td><td class="num"><b>21:30</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>加拿大 10 月 CPI</b></td><td>08:30 ET 換算；本週首個北美一級數據，USD/CAD 1.4290 為關鍵位</td><td class="lvl">★★★</td></tr>
+            <tr><td class="num">11/17<br><span style="font-weight:400;color:#8d9eb2">週二</span></td><td class="num"><b>21:30</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>美國 10 月零售銷售</b></td><td>08:30 ET 換算；檢驗 10 月 CPI（+0.4% m/m，連三個月超預期）後的消費韌性</td><td class="lvl">★★★</td></tr>
+            <tr><td class="num">11/18<br><span style="font-weight:400;color:#8d9eb2">週三</span></td><td class="num"><b>15:00</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>英國 10 月 CPI</b></td><td>07:00 GMT 換算；預估 3.73%，服務通脹黏性是英央行再加息的依據</td><td class="lvl">★★★</td></tr>
+            <tr><td class="num">11/19<br><span style="font-weight:400;color:#8d9eb2">週四</span></td><td class="num"><b>03:00</b></td><td><span class="sdot" style="background:#c62828"></span>央行政策</td><td><b>FOMC 會議紀錄</b></td><td>14:00 ET（11/18 週三下午）換算；12 月加息 25bp 已定價 90%，紀錄決定節奏</td><td class="lvl">★★★</td></tr>
+            <tr><td class="num">11/19<br><span style="font-weight:400;color:#8d9eb2">週四</span></td><td class="num"><b>08:30</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>澳洲 10 月就業</b></td><td>00:30 GMT 換算；AUD/USD 0.6773 十個月低位下的關鍵催化劑</td><td class="lvl">★★★</td></tr>
+            <tr><td class="num">11/19<br><span style="font-weight:400;color:#8d9eb2">週四</span></td><td class="num"><b>21:30</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>美國初領失業金人數</b></td><td>08:30 ET 換算；檢驗勞動市場在非農超預期後的延續性</td><td class="lvl">★★</td></tr>
+            <tr><td class="num">11/20<br><span style="font-weight:400;color:#8d9eb2">週五</span></td><td class="num"><b>07:30</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>日本 10 月 CPI</b></td><td>23:30 GMT（週四）換算；配合 12/18 日銀加息定價 84%</td><td class="lvl">★★</td></tr>
+            <tr><td class="num">11/20<br><span style="font-weight:400;color:#8d9eb2">週五</span></td><td class="num"><b>15:00</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>英國 10 月零售銷售</b></td><td>07:00 GMT 換算；考驗英國通脹升溫後的消費韌性</td><td class="lvl">★★</td></tr>
+            <tr><td class="num">11/20<br><span style="font-weight:400;color:#8d9eb2">週五</span></td><td class="num"><b>23:00</b></td><td><span class="sdot" style="background:#1565c0"></span>經濟數據</td><td><b>美國密歇根大學消費者信心指數（初值）</b></td><td>10:00 ET 換算；週五收盤前的最後一輪美元定價</td><td class="lvl">★★</td></tr>
+            <tr><td class="num">11/21<br><span style="font-weight:400;color:#8d9eb2">週六</span></td><td class="num"><b>01:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td><b>Moody’s 英國評級檢討</b></td><td>17:00 GMT（週五倫敦收市後）；財政壓力若被點名會直接衝擊英鎊</td><td class="lvl">★★★</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#6a1b9a;display:inline-block"></span>每日重複的風險窗口</h2>
+      <p class="hint">常設地緣政治背景與突發風險時段，與事件層一起顯示於外圈。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>HKT</th><th>類別</th><th>風險點</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td class="num"><b>02:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td>美伊和談與中東局勢</td><td>協議希望令油價單日跌逾 10%，避險溢價快速收縮；隨時可能逆轉</td></tr>
+            <tr><td class="num"><b>05:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td>USD/JPY 160 干預風險</td><td>日本今年已動用約 27 兆日圓干預；財務大臣與首相均已發出警告</td></tr>
+            <tr><td class="num"><b>07:00</b></td><td><span class="sdot" style="background:#6a1b9a"></span>突發風險</td><td>亞洲開盤跳空窗口</td><td>日圓干預消息、亞洲央行政見在此傳導，隔夜跳空風險最高</td></tr>
+            <tr><td class="num"><b>09:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td>中國外匯政策收緊</td><td>外匯存款準備金率 11/15 起升至 6%，在岸人民幣 6.67 附近企穩、雙向波動放大</td></tr>
+            <tr><td class="num"><b>11:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td>美國中期選舉後政策轉向</td><td>民主黨橫掃國會，AI 監管疑慮令科技股連續走弱，美元與美股共用同一變數</td></tr>
+            <tr><td class="num"><b>15:00</b></td><td><span class="sdot" style="background:#6a1b9a"></span>突發風險</td><td>歐洲官員講話／波幅擴大</td><td>UTC 07:00 起每小時 pip 區間明顯放大</td></tr>
+            <tr><td class="num"><b>18:00</b></td><td><span class="sdot" style="background:#ef6c00"></span>地緣政治</td><td>法國財政與歐元政治溢價</td><td>2027 年總統大選極右翼風險，壓制歐元短線表現</td></tr>
+            <tr><td class="num"><b>21:30</b></td><td><span class="sdot" style="background:#6a1b9a"></span>突發風險</td><td>美國一級數據發布</td><td>本週一至五連續有數據；滑點與停頓風險最高的一刻</td></tr>
+            <tr><td class="num"><b>22:00</b></td><td><span class="sdot" style="background:#6a1b9a"></span>突發風險</td><td>Fed 官員點評窗口</td><td>美東 09:00 起為官員講話密集時段</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#c98a1e;display:inline-block"></span>重疊區域 × 可獲利細節</h2>
+      <div class="ovl-card" style="--c:#c98a1e">
+        <h3>重疊 B — 歐洲 × 北美（最高價值）<span class="star">★★★ HKT 21:00–01:00</span></h3>
+        <div class="oc-time">UTC 13:00–17:00 ・ ET 08:00–12:00 ・ 核心 22:00–24:00，收尾 00:00–01:00</div>
+        <div class="oc-row"><span class="lbl">市場性質</span>倫敦與紐約同時開市，<b>全日成交量最高、方向性擺動最大</b>；美國數據在倫敦流動性高峰釋出。</div>
+        <div class="oc-row"><span class="lbl">受影響貨幣對</span><b>EUR/USD、GBP/USD、USD/JPY</b></div>
+        <div class="oc-row"><span class="lbl">可獲利細節</span>① 數據前 30 分鐘區間突破；② 數據後等 15 分鐘收線順勢，目標為數據區間 1.5 倍；③ 假突破策略：先掛突破單，逆向即反轉訊號。</div>
+        <div class="oc-row"><span class="lbl">風險</span>非農／CPI 當天避開 <b>HKT 21:30</b> 前滿倉；滑點與停頓風險最高。</div>
+      </div>
+      <div class="ovl-card" style="--c:#7b4fd0">
+        <h3>重疊 A — 亞洲 × 歐洲<span class="star" style="background:#f0e8fd;color:#57349b">★★ HKT 16:00–17:00</span></h3>
+        <div class="oc-time">UTC 08:00–09:00 ・ ET 03:00–04:00 ・ 含 HKT 15:00 前置升溫</div>
+        <div class="oc-row"><span class="lbl">市場性質</span>歐洲交易員對<b>亞洲隔夜動作</b>作出反應，每小時 pip 區間自 <b>HKT 15:00（UTC 07:00）</b> 起放大。</div>
+        <div class="oc-row"><span class="lbl">受影響貨幣對</span><b>EUR/JPY、GBP/JPY</b></div>
+        <div class="oc-row"><span class="lbl">可獲利細節</span>先掛突破單等波幅擴大，用<b>倫敦開市首根 5 分鐘 K 線</b>確認方向；止損設在亞洲區間之外；點差 16:15 後收窄，適合掛單而非市價追入。</div>
+        <div class="oc-row"><span class="lbl">風險</span>東京收市與倫敦開市交接，頭 15–30 分鐘點差仍偏闊。</div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#1c8a5a;display:inline-block"></span>三時段對照表（FX1 原始分析 ＋ 香港時間換算）</h2>
+      <p class="hint">Hours (UTC) / Hours (Eastern Time) 取自 FX1 原文，最右欄為香港時間（HKT = UTC+8）。</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>時段</th><th>中心</th><th>UTC</th><th>美東 ET</th><th>香港時間 HKT</th><th>特徵與重點貨幣</th></tr></thead>
+          <tbody>
+            <tr><td><span class="sdot" style="background:#2f6fb0"></span><b>亞洲</b></td><td>東京</td><td class="num">23:00–09:00</td><td class="num">18:00–04:00</td><td class="num"><b>07:00–17:00</b></td><td>低波動、區間為主、技術交易；JPY / AUD / NZD 活躍</td></tr>
+            <tr><td><span class="sdot" style="background:#1c8a5a"></span><b>歐洲</b></td><td>倫敦</td><td class="num">08:00–17:00</td><td class="num">03:00–12:00</td><td class="num"><b>16:00–01:00</b></td><td>全球最活躍，約佔 38% 日成交量；EUR / GBP / CHF 受影響最大</td></tr>
+            <tr><td><span class="sdot" style="background:#d1622a"></span><b>北美</b></td><td>紐約</td><td class="num">13:00–22:00</td><td class="num">08:00–17:00</td><td class="num"><b>21:00–06:00</b></td><td>高波動，與倫敦重疊時尤甚；USD 與美國數據主導</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#ef6c00;display:inline-block"></span>市場快照（2026-11-14 週六紐約收市）</h2>
+      <p class="hint">此區為定價基準快照，供簡報中的宏觀背景引用。</p>
+      <div class="snap">
+        <div><div class="k">美元指數 DXY</div><div class="v">103.17</div><div class="subv">19 個月高位 (+4.95% YTD)</div></div>
+        <div><div class="k">EUR/USD</div><div class="v">1.1022</div><div class="subv">逼近 1.1000 關口</div></div>
+        <div><div class="k">GBP/USD</div><div class="v">1.3211</div><div class="subv">BoE 鷹派加息支撐</div></div>
+        <div><div class="k">AUD/USD</div><div class="v">0.6773</div><div class="subv">10 個月低位</div></div>
+        <div><div class="k">USD/JPY</div><div class="v">159.71</div><div class="subv">曾觸 160.19 警戒線</div></div>
+        <div><div class="k">USD/CHF</div><div class="v">0.8391</div><div class="subv">主要貨幣最弱</div></div>
+        <div><div class="k">美 10 年期債息</div><div class="v">~5.10%</div><div class="subv">高息差支撐美元</div></div>
+        <div><div class="k">黃金 / 原油</div><div class="v">&gt;$4,000 / −10%</div><div class="subv">美伊協議希望壓抑油價</div></div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom:16px">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#7b4fd0;display:inline-block"></span>策略 × 時段對齊（FX1 原文原則）</h2>
+      <ul class="strat-list">
+        <li><b>區間突破與技術交易（亞洲時段 HKT 07:00–17:00）</b>：東京時段低波動，價格在支撐阻力之間來回，以 JPY、AUD、NZD 高拋低吸為主。</li>
+        <li><b>動能與突破交易（倫敦 × 紐約重疊 HKT 21:00–01:00）</b>：短線與日內交易者不留隔夜倉，靠高波幅在 ET 08:00–12:00 捕獲急挫走勢，尤其留意非農與聯儲局議息。</li>
+        <li><b>波段與長線持倉（離峰時段 HKT 02:00–06:00）</b>：貨幣對最活躍的時段往往給出較差的入場價；離峰時段用平靜行情建立倉位，等待波動來襲。</li>
+        <li><b>自動化訂單管理（全天候 24 小時）</b>：用預設買賣限價單與止損單，或演算法（EA）工具，在突發消息與跳空時自動執行風控。</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>分析數據：每個香港時段 應看哪個時區的外匯表現</h2>
+      <p class="hint">由 HKT 00:00 起按時序排列（點擊任一列可即時切換左側圓盤並跳回頂部檢視）。「應看時區」即該小時應該觀察的外匯表現來源；★ 為流動性／獲利機會等級。此表描述<b>交易日</b>的時段結構，週末休市期間不適用。</p>
+      <div class="table-wrap">
+        <table id="masterTable">
+          <thead><tr><th>香港時間</th><th>UTC</th><th>美東 ET</th><th>應看的時區</th><th>市場性格</th><th>該時段的外匯表現</th><th>操作建議</th><th>級別</th></tr></thead>
+          <tbody>
+            <tr data-seg="0"><td class="num"><b>00:00–01:00</b></td><td class="num">16:00–17:00</td><td class="num">11:00–12:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲（倫敦）＋美國（紐約）</td><td>獲利回吐</td><td>歐美重疊進入最後一小時，倫敦接近收市（17:00 UTC）。美元指數站上 103 的高位在亞洲接手前缺乏後續買盤，本時段通常是日內方向的最後一次修正。</td><td>不開新倉，只做倉位管理；為 07:00 東京開盤預備 JPY 交叉盤突破單。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="1"><td class="num"><b>01:00–02:00</b></td><td class="num">17:00–18:00</td><td class="num">12:00–13:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>波動遞減</td><td>倫敦已收市，紐約進入午盤，是美元強勢的最後確認期。上週 USD/CHF 走勢顯著，避險需求與息差主導瑞郎與日圓波動。</td><td>僅管理倉位；用掛單等待亞洲開盤方向確認，滑點設定要收緊。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="2"><td class="num"><b>02:00–03:00</b></td><td class="num">18:00–19:00</td><td class="num">13:00–14:00</td><td><span class="sdot" style="background:#8496ab"></span>過渡期（紐約午後）</td><td>交接真空</td><td>紐約午後交投轉淡、東京與悉尼尚未開市，全球流動性逐步降至低谷，價格以窄幅橫盤為主。</td><td>不交易；用掛單等待亞洲開盤的方向確認。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="3"><td class="num"><b>03:00–06:00</b></td><td class="num">19:00–22:00</td><td class="num">14:00–17:00</td><td><span class="sdot" style="background:#8496ab"></span>紐約尾盤至換日</td><td>低流動性</td><td>紐約尾盤收市（17:00 ET / 06:00 HKT）及每日日結換日（05:00–06:00 HKT），點差擴闊、波動極低，是日內方向形成前的蓄勢期。</td><td>波段與長線的最佳建倉窗口：避開日內劇烈波動，用限價單分批佈局（避開 05:00–06:00 換日點差）。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="4"><td class="num"><b>06:00–07:00</b></td><td class="num">22:00–23:00</td><td class="num">17:00–18:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（悉尼／東京前哨）</td><td>跳空突破</td><td>新交易日開啟（週一 06:00 HKT 補週末缺口），悉尼與東京早盤資金進場，JPY 交叉盤出現亞洲時段第一個可交易訊號。</td><td>順勢追突破但先等 15 分鐘確認方向；日圓干預風險高，倉位宜小。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="5"><td class="num"><b>07:00–08:00</b></td><td class="num">23:00–00:00</td><td class="num">18:00–19:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京＋悉尼）</td><td>承接方向</td><td>東京時段正式啟動（23:00 UTC），隔夜美元強勢的方向在此消化。AUD/USD 跌至 0.6773 的 10 個月低點，商品貨幣承壓。</td><td>以亞洲承接方向做短線；AUD/JPY 為當日最活躍的亞洲交叉盤。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="6"><td class="num"><b>08:00–10:00</b></td><td class="num">00:00–02:00</td><td class="num">19:00–21:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京＋悉尼）</td><td>趨勢初成</td><td>亞洲時段流動性主峰，東京定盤與中國在岸開盤帶動日內方向初成。AUD/USD 觸及 10 個月低位後，技術反彈與續跌之爭展開。</td><td>等待突破亞洲時段早盤區間，量能確認後順勢持有。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="7"><td class="num"><b>10:00–12:00</b></td><td class="num">02:00–04:00</td><td class="num">21:00–23:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>區間整理</td><td>東京午盤波動收斂，價格在支撐與阻力區間內來回，是典型「區間為主」的技術交易時段。</td><td>支撐阻力高拋低吸，止損放區間外；不追突破單。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="8"><td class="num"><b>12:00–15:00</b></td><td class="num">04:00–07:00</td><td class="num">23:00–02:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（等待歐洲接力）</td><td>數據預期</td><td>歐洲開盤前的準備時段，亞洲機構開始調整倉位。美元指數 103.17 高位令非美貨幣持續承壓，交叉盤逐步累積動能。</td><td>歐盤前收縮過度槓桿；可先佈局突破掛單等待倫敦資金啟動。</td><td class="lvl">★☆☆</td></tr>
+            <tr data-seg="9"><td class="num"><b>15:00–16:00</b></td><td class="num">07:00–08:00</td><td class="num">02:00–03:00</td><td><span class="sdot" style="background:#1f8f86"></span>亞洲 轉 歐洲（倫敦）</td><td>波幅擴大</td><td>自 HKT 15:00（UTC 07:00）起每小時 pip 區間明顯放大——歐洲交易員開始對亞洲隔夜動作作出反應，是倫敦盤前的最佳佈局窗口。</td><td>先掛突破單等波幅擴大；以 EUR/USD 1.1000 關口作方向觸發參考。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="10"><td class="num"><b>16:00–17:00</b></td><td class="num">08:00–09:00</td><td class="num">03:00–04:00</td><td><span class="sdot" style="background:#7b4fd0"></span>亞洲＋歐洲（倫敦）</td><td>交叉盤活躍</td><td>倫敦正式開市（08:00 UTC）與東京尾盤重疊，亞洲×歐洲交叉盤點差收窄、波動放大。EUR/USD 逼近 1.1000 心理關口。</td><td>用倫敦開市首根 5 分鐘 K 線確認方向順勢入場，止損設在亞洲時段區間之外。</td><td class="lvl">★★★</td></tr>
+            <tr data-seg="11"><td class="num"><b>17:00–18:00</b></td><td class="num">09:00–10:00</td><td class="num">04:00–05:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>日內突破</td><td>東京收市後倫敦獨立主導，是歐洲早盤波幅最大的時段之一，歐元與英鎊在此突破亞洲區間。</td><td>順勢突破為主，配合 5 分鐘收線確認；避免在開市瞬間追價。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="12"><td class="num"><b>18:00–20:00</b></td><td class="num">10:00–12:00</td><td class="num">05:00–07:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>順勢動能</td><td>歐洲時段佔全球約 38% 日成交量，此時段趨勢延續性最強，是歐元、英鎊、瑞郎影響力最大的交易窗口。</td><td>順勢突破＋回調進場的黃金窗；歐洲時段最值得操作的區間。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="13"><td class="num"><b>20:00–21:00</b></td><td class="num">12:00–13:00</td><td class="num">07:00–08:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>高位反轉</td><td>歐洲午盤獲利回吐與紐約盤前佈局交錯，歐元日內階段性高低點常在此確立。</td><td>順勢倉位在此段適度減半；反轉交易者等日內高低位假突破後跟進。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="14"><td class="num"><b>21:00–22:00</b></td><td class="num">13:00–14:00</td><td class="num">08:00–09:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>美元定價</td><td>紐約於美東 08:00（HKT 21:00）開市，美元定價權接管，21:30 美國一級數據密集公布，是全日成交最密集的起點。</td><td>數據前降槓桿；數據後等 15 分鐘收線確認再順勢入場。</td><td class="lvl">★★☆</td></tr>
+            <tr data-seg="15"><td class="num"><b>22:00–24:00</b></td><td class="num">14:00–16:00</td><td class="num">09:00–11:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲（倫敦）＋美國（紐約）</td><td>最高量</td><td>倫敦與紐約同步活躍（含倫敦定盤窗口），全日最高成交量、最大方向性擺動。美元指數 103.17 的 19 個月高位正是在此窗口刷新。</td><td>全日唯一值得重倉的窗口：突破前 15–30 分鐘區間整理後的假突破策略，或數據後順勢單。</td><td class="lvl">★★★</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<footer>
+  <b>換算說明</b> ET = UTC−5（FX1 原文以美東標準時間標示倫敦 03:00–12:00 對應 UTC 08:00–17:00）；HKT = UTC+8 = ET+13。倫敦 08:00–17:00 UTC → HKT 16:00–01:00；紐約 13:00–22:00 UTC → HKT 21:00–06:00；東京 23:00–09:00 UTC → HKT 07:00–17:00。<br>
+  <b>交易時間</b> 現貨外匯每週交易五天：<b>週日 17:00 ET（星期一 06:00 HKT）開市，至週五 17:00 ET（星期六 06:00 HKT）收市</b>。每日 05:00–06:00 HKT 為日結換日（Rollover）、流動性極低。本圖的時段敘事僅適用於交易日；週日與週六休市時段，AI 簡報會自動改為「休市模式」。<br>
+  <b>資料來源</b> FX1《The Forex 3-Session Trading System》— 三時段時數表、Session Overlaps、Key Takeaways、Aligning Strategies；市場快照與事件日曆取自 Capital Street FX《Week Ahead》2026-11-14、中國金融信息網《央行圓桌匯》、21 世紀經濟報道（2026-11-14）。<br>
+  <b>更新機制</b> 紅線每 20 秒重繪並在整點自動切換時段、重新生成 AI 市場簡報；「星期」按鈕可切換星期一至日，「預覽時段」滑桿或點擊圓盤／右側表格列均可即時檢視任一時段。<br>
+  <b>風險聲明</b> 本圖為時段分析與研究工具，不構成任何投資建議。所有時區換算依 FX1 所載 ET 標準時間基準，未含夏令時間（DST）調整。
+</footer>
+</div>
+
+<script>
+const WEDGES=[
+  {"s":0,"e":1,"zh":"歐美重疊尾段","cl":"週末消息累積 · 亞洲接手前","en":"Overlap Tail","tz":"歐洲＋美國","tzFull":"歐洲（倫敦）＋美國（紐約）","tag":"EU+NY","ic":"reversal","k":"獲利回吐","hot":2,"pr":"EUR/USD、GBP/USD"},
+  {"s":1,"e":2,"zh":"紐約尾市","cl":"週末消息累積 · 亞洲接手前","en":"NY Late Session","tz":"美國","tzFull":"美國（紐約）","tag":"NY","ic":"candle","k":"波動遞減","hot":1,"pr":"USD/JPY、USD/CHF、EUR/USD"},
+  {"s":2,"e":3,"zh":"亞洲待市","cl":"週末休市 · 開市前靜止","en":"Pre-Asia Handoff","tz":"過渡期","tzFull":"過渡期（紐約午後）","tag":"—","ic":"split","k":"交接真空","hot":0,"pr":"—"},
+  {"s":3,"e":6,"zh":"流動性靜淡","cl":"週末休市 · 開市前靜止","en":"Liquidity Lull","tz":"亞洲休市","tzFull":"紐約尾盤至換日（無主導）","tag":"—","ic":"clock","k":"低流動性","hot":0,"pr":"交叉盤（EUR/JPY、GBP/JPY）"},
+  {"s":6,"e":7,"zh":"東京開市","cl":"亞洲時段（尚未開始）","en":"Tokyo Open","tz":"亞洲","tzFull":"亞洲（悉尼／東京前哨）","tag":"ASIA","ic":"candle","k":"跳空突破","hot":2,"pr":"USD/JPY、EUR/JPY、AUD/JPY"},
+  {"s":7,"e":8,"zh":"亞洲承接","cl":"亞洲時段（尚未開始）","en":"Asia Takeover","tz":"亞洲","tzFull":"亞洲（東京＋悉尼）","tag":"ASIA","ic":"globe","k":"承接方向","hot":1,"pr":"AUD/USD、NZD/USD、AUD/JPY"},
+  {"s":8,"e":10,"zh":"亞洲流動性","cl":"亞洲時段（尚未開始）","en":"Asian Liquidity","tz":"亞洲","tzFull":"亞洲（東京＋悉尼）","tag":"ASIA","ic":"globe","k":"趨勢初成","hot":1,"pr":"AUD、NZD、JPY 交叉盤"},
+  {"s":10,"e":12,"zh":"亞洲盤整固","cl":"亞洲時段（尚未開始）","en":"Asian Range","tz":"亞洲","tzFull":"亞洲（東京）","tag":"ASIA","ic":"target","k":"區間整理","hot":0,"pr":"JPY 交叉盤（EUR/JPY、USD/JPY）"},
+  {"s":12,"e":15,"zh":"亞洲午後","cl":"亞洲時段（尚未開始）","en":"Asia Afternoon","tz":"亞洲","tzFull":"亞洲（等待歐洲接力）","tag":"ASIA","ic":"news","k":"數據預期","hot":1,"pr":"USD 交叉盤、EUR/USD"},
+  {"s":15,"e":16,"zh":"倫敦鋪墊","cl":"倫敦盤前（尚未開始）","en":"Pre-London Uptick","tz":"亞洲→歐洲","tzFull":"亞洲 轉 歐洲（倫敦）","tag":"PRE-EU","ic":"bolt","k":"波幅擴大","hot":2,"pr":"EUR/JPY、GBP/JPY、EUR/USD"},
+  {"s":16,"e":17,"zh":"亞歐重疊","cl":"亞歐重疊（尚未開始）","en":"Asia/Europe Overlap","tz":"亞洲＋歐洲","tzFull":"亞洲＋歐洲（倫敦）","tag":"ASIA+EU","ic":"link","k":"交叉盤活躍","hot":3,"pr":"EUR/JPY、GBP/JPY（EUR/USD 開始反應）"},
+  {"s":17,"e":18,"zh":"倫敦早盤突破","cl":"倫敦時段（尚未開始）","en":"London Breakout","tz":"歐洲","tzFull":"歐洲（倫敦）","tag":"EU","ic":"bars","k":"日內突破","hot":2,"pr":"EUR/USD、GBP/USD"},
+  {"s":18,"e":20,"zh":"倫敦動能","cl":"倫敦時段（尚未開始）","en":"London Momentum","tz":"歐洲","tzFull":"歐洲（倫敦）","tag":"EU","ic":"line","k":"順勢動能","hot":2,"pr":"EUR/USD、GBP/USD、EUR/CHF、GBP/CHF"},
+  {"s":20,"e":21,"zh":"倫敦轉折","cl":"倫敦尾盤（尚未開始）","en":"London Reversal","tz":"歐洲","tzFull":"歐洲（倫敦）","tag":"EU","ic":"reversal","k":"高位反轉","hot":2,"pr":"EUR/USD、GBP/USD"},
+  {"s":21,"e":22,"zh":"紐約開市","cl":"紐約時段（尚未開始）","en":"NY Open","tz":"美國","tzFull":"美國（紐約）","tag":"NY","ic":"coin","k":"美元定價","hot":2,"pr":"全部 USD 貨幣對"},
+  {"s":22,"e":24,"zh":"歐美重疊核心","cl":"歐美重疊（尚未開始）","en":"Core EU/NA Overlap","tz":"歐洲＋美國","tzFull":"歐洲（倫敦）＋美國（紐約）","tag":"EU+NY","ic":"volume","k":"最高量","hot":3,"pr":"EUR/USD、GBP/USD、USD/JPY"}
+];
+
+const AI=[
+  {"now":"歐美重疊進入最後一小時，倫敦接近收市（17:00 UTC）。美元指數站上 103 的高位在亞洲接手前缺乏後續買盤，本時段通常是日內方向的最後一次修正。","geo":"美伊和談消息與中東局勢在亞洲開盤前仍可能傳出；油價單日曾跌逾 10%，顯示避險溢價正在快速收縮。","cb":"FOMC 會議紀錄（香港時間 11/19 03:00）前，市場已把 12 月加息 25bp 定價至約 90%（50bp 約 10%）。","brk":"USD/JPY 160.00 是政策干預觸發線；亞洲開盤前若再度逼近 160，可能出現官方口頭干預。","act":"不開新倉，只做倉位管理；為 07:00 東京開盤預備 JPY 交叉盤突破單。"},
+  {"now":"倫敦已收市，紐約進入午盤，是美元強勢的最後確認期。上週 USD/CHF 波動劇烈，避險需求與美瑞息差主導瑞郎與日圓走勢。","geo":"中東局勢若出現新一輪消息，已收市的歐洲盤會在亞洲早盤補價。","cb":"Fed 十月議息有兩票反對（庫克、哈馬克）主張加息 25bp，鷹派分歧擴大，加息路徑仍是美元主要支撐。","brk":"週五尾盤前薄量時段點差擴大，假突破機率上升。","act":"僅管理倉位；用掛單等待亞洲開盤方向確認，滑點設定要收緊。"},
+  {"now":"紐約午後交投轉淡、東京與悉尼尚未開市，全球流動性逐步降至低谷，價格以窄幅橫盤為主。","geo":"週末前的地緣政治頭條在此累積，隔夜跳空風險升高。","cb":"無政策事件。","brk":"突發新聞（軍事、政變、央行官員講話）在此時段容易造成流動性真空跳空。","act":"不交易；用掛單等待亞洲開盤的方向確認。"},
+  {"now":"紐約尾盤收市（06:00 HKT）及每日日結換日（05:00–06:00 HKT），點差擴闊、波動極低，是日內方向形成前的蓄勢期。","geo":"中東與美伊進程的最新消息在此被市場消化。","cb":"中國人民銀行 11/15 起外匯存款準備金率上調至 6%（近 5 年首次），在岸人民幣在 6.67 附近企穩，雙向波動放大。","brk":"隔夜突發新聞與 USD/JPY 干預是最大變數；05:00–06:00 換日點差最闊。","act":"波段與長線的建倉窗口：避開日內劇烈波動，用限價單分批佈局（避開 05:00–06:00 換日點差）。"},
+  {"now":"新交易日開啟（週一 06:00 HKT 補週末缺口），日本 CPI 與第三季 GDP 等國內數據被消化，JPY 交叉盤出現亞洲時段第一個可交易訊號。","geo":"美國中期選舉民主黨橫掃國會、AI 監管疑慮令日經與科技股連續走弱，避險情緒直接影響日圓的避險溢價。","cb":"日本央行政策利率 1.25%，10 月以 8:1 維持、高田創主張加息至 1.5% 被否；12/18 加息定價約 84%。","brk":"USD/JPY 盤中觸及 160.19 後已獲財務大臣片山皋月與首相的干預警告；日本今年已動用約 27 兆日圓干預。","act":"順勢追突破但先等 15 分鐘確認方向；干預風險高，倉位宜小。"},
+  {"now":"東京時段正式啟動（23:00 UTC），隔夜美元強勢的方向在此消化。AUD/USD 跌至 0.6773 的 10 個月低點，商品貨幣最弱。","geo":"油價因美伊和談希望急挫逾 10%，直接壓制澳元、加元等商品貨幣。","cb":"RBA 已加息至 4.85% 但未給 12 月指引；RBNZ 第三季通脹由 4.1% 回落至 3.7%，減輕再收緊壓力。","brk":"澳洲就業數據是商品貨幣的單日最大變數。","act":"以亞洲承接方向做短線；AUD/JPY 為當日最活躍的亞洲交叉盤。"},
+  {"now":"亞洲時段流動性主峰，東京定盤與中國在岸開盤帶動日內方向初成。AUD/USD 觸及 10 個月低位後，技術性反彈與續跌之爭在此展開。","geo":"澳洲與中東相關的供應鏈消息影響商品貨幣估值。","cb":"中國收緊外匯流動性以抑制結匯，人民幣偏強格局未變但升值斜率放緩。","brk":"中國數據低於預期會放大人民幣波動並傳導至亞洲貨幣。","act":"等待突破亞洲時段早盤區間，量能確認後順勢持有。"},
+  {"now":"東京午盤波動收斂，價格在區間內來回，是典型「區間為主」的時段。","geo":"暫無新增頭條。","cb":"歐洲理事會與歐央行官員在午間前開始發言，歐元定價醞釀中。","brk":"區間末端容易出現假突破。","act":"支撐阻力高拋低吸，止損放區間外；不追突破單。"},
+  {"now":"歐洲開盤前的準備時段，美元倉位開始調整。美元指數 103.17 的高位讓非美貨幣持續承壓，亞洲交叉盤逐步累積波動。","geo":"美國中期選舉後的財政與 AI 監管政策不確定性，是美元與美股的共同變數。","cb":"12 月 Fed 加息定價約 90%；歐央行因 10 月核心 CPI 2.6% 黏性，12 月加息預期同步升溫。","brk":"歐盤前的突發頭條可能改變整體定價。","act":"歐盤前收縮過度槓桿；可先佈局突破掛單等行情啟動。"},
+  {"now":"自 HKT 15:00（UTC 07:00）起每小時 pip 區間明顯放大——歐洲交易員開始對亞洲隔夜動作作出反應，是倫敦盤前的最佳佈局窗口。","geo":"法國 2027 年總統大選的極右翼風險，令歐元的政治溢價仍被壓抑。","cb":"歐央行存款利率 2.50%，拉加德明確表示管委會曾討論加息；她 2027/2/7 提前離任、科斯塔接任程序已啟動，行長更替本身即是變數。","brk":"英國 CPI 前 30 分鐘波動常先於數值公布放大，須防假突破；同時 EUR/USD 1.1000 是方向性觸發位。","act":"先掛突破單等波幅擴大；用 EUR/USD 1.1000 關口作觸發條件。"},
+  {"now":"倫敦正式開市接手亞洲盤，亞洲×歐洲交叉盤點差收窄、波動放大。EUR/USD 逼近 1.1000 心理關口。","geo":"英國財政與 Moody’s 評級檢討前的英鎊敏感度升高。","cb":"英國央行 11/5 已加息 25bp 至 4.00%（8:1），貝利警告若中東衝突未實質解決「本次加息不太可能是最後一次」——英鎊的鷹派支撐來自戰爭溢價。","brk":"EUR/USD 跌破 1.1000 會引發止損連鎖與貴金屬拋售。","act":"用倫敦開市首根 5 分鐘 K 線確認方向順勢入場，止損設在亞洲時段區間之外。"},
+  {"now":"倫敦開市後獨立主導，是歐洲早盤波幅最大的時段之一，歐元與英鎊在此突破日內區間。","geo":"歐洲能源價格反彈推升輸入型通脹，是歐央行最大的顧慮。","cb":"歐央行 10 月議息以 2.50% 存款利率按兵不動，但屬典型鷹派暫停。","brk":"假突破比例高，需要收線確認。","act":"順勢突破為主，配合 5 分鐘收線確認；避免在開市瞬間追價。"},
+  {"now":"全球約 38% 的日成交量在此形成，是歐元、英鎊、瑞郎影響力最大的時段。","geo":"法國財政風險令歐元短線承壓，避險資金與息差主導歐系貨幣分化。","cb":"市場對英國央行進一步收緊的預期支撐英鎊（GBP/USD 1.3211）。","brk":"若美債 10 年期收益率站上 5.1% 上方，美元會再創年內新高。","act":"順勢突破＋回調進場的黃金窗；歐洲時段最值得做單的區間。"},
+  {"now":"倫敦尾盤前獲利回吐與紐約盤前佈局常在此出現，歐元日內階段性高低點多在此確立。","geo":"資金在美國數據前平倉，避險資產波動加劇。","cb":"Fed 官員密集講話窗口開啟，每一次發言都可能改變 12 月定價。","brk":"日圓干預警告可能在歐美交接期再現。","act":"順勢倉位在此段減半；反轉交易者等日內高低位假突破後跟進。"},
+  {"now":"紐約於美東 08:00（HKT 21:00）開市，美元定價權接管，21:30 美國一級數據密集公布，是全日成交最密集的起點。","geo":"美伊和談與中東局勢在此被定價到油價與通脹預期。","cb":"12 月 Fed 加息定價約 90%；Fed 官員的每一次講話都可能改價。","brk":"數據瞬間滑點與停頓風險最高。","act":"數據前降槓桿；數據後等 15 分鐘收線確認再順勢入場。"},
+  {"now":"倫敦與紐約同時開市，全日最高成交量、最大方向性擺動。美元指數 103.17 的 19 個月高位就是在這樣的窗口被不斷刷新。","geo":"中東、伊朗協議進度，加上中期選舉後的美國政策轉向，全部在此被匯率定價。","cb":"FOMC 會議紀錄（11/19 03:00 HKT）是本窗口之後的第一個政策事件。","brk":"USD/JPY 160.00 的干預線在亞洲開盤前仍可能觸發。","act":"全日唯一值得重倉的窗口：突破前 15–30 分鐘區間整理後的假突破策略，或數據後順勢單。"}
+];
+
+const DAY_CTX=[
+  {"n":"週日","tag":"週末休市","tone":"closed","t":"全球現貨外匯市場整日休市（週末封盤）。只有加密貨幣與場外報價仍在運行，CME 貨幣期貨尚未開盤、價差極闊。","k":"休市期間沒有任何現貨報價成交，但消息面仍在累積：地緣政治、外交風波與央行官員發言會在週一 06:00 HKT 開市時以「跳空缺口」一次過反映。","a":"市場休市，無法交易。開市前準備：① 寫下要守的關鍵位（EUR/USD 1.1000、USD/JPY 160.00、USD/CAD 1.4290）；② 預先設計「補缺口／不回補」兩套劇本；③ 檢查 EA 與掛單滑點上限。"},
+  {"n":"週一","tag":"補缺口日","tone":"open","t":"週一 06:00 HKT（週日 17:00 ET）正式開市，是一週的首個交易日。開市首日的主線是「補回週末缺口」——缺口的方向往往決定 07:00–12:00 的日內節奏；真正的第二波機構流動性要到倫敦開市（16:00 HKT）才會加入。","k":"週末累積的地緣政治與央行官員講話，會在亞洲開市前半小時內被定價，形成開市缺口。","a":"亞洲時段先觀察缺口方向與回補幅度，不急於重倉順勢；待倫敦開市（16:00 HKT）確認方向再順勢入場。"},
+  {"n":"週二","tag":"數據密集","tone":"open","t":"一級經濟數據逐步升溫。美國零售銷售等核心消費數據落在此日，亞洲與歐洲同時有數據，形成「早段亞洲區間、晚段美國定價」的雙重節奏，日內反覆洗盤的機會較多。","k":"當日亞洲與歐洲盤會先建立日內高低區間，美國數據再決定方向突破，兩段行情的波動邏輯不同。","a":"把日內分成兩段交易：亞洲段做區間、歐美段做方向；避免用同一套止損幅度應對兩種波動。"},
+  {"n":"週三","tag":"政策敘事日","tone":"open","t":"英國 CPI 與美東下午的 FOMC 會議紀錄（對應週四 03:00 HKT）是本週政策敘事的核心。會議紀錄揭露委員分歧後，美元的 12 月加息定價會有一次性重定，往往在亞洲早盤被完全消化。","k":"紀錄會揭露委員對加息幅度的分歧程度，若鷹派立場較 10 月更強，日圓與瑞郎將再度承壓。","a":"FOMC 紀錄公布後 30–60 分鐘內波動最不可測，宜等首輪方向確認再順勢，不要在消息剛出時追價。"},
+  {"n":"週四","tag":"事件密度最高","tone":"open","t":"央行紀錄消化與就業數據並存——凌晨 FOMC 紀錄、早盤澳洲就業、晚間美國初領失業金密集登場，故週四是全週事件密度最高的一天。","k":"各國數據會透過利率預期差直接傳導至交叉盤，並與美元形成同向或反向的定價。","a":"把週四視作「事件串聯日」：每個事件後只做同向確認，不做逆勢猜頂底，並預留半段日內的倉位額度。"},
+  {"n":"週五","tag":"獲利平倉日","tone":"open","t":"獲利平倉與週末前資金流主導。歐洲與紐約在美東尾盤前成交量遞減、日內高低點多在倫敦尾盤至紐約早盤形成；規避週末跳空風險使不少機構在週五減倉。","k":"避險平倉會令瑞郎、日圓在週五尾盤出現與日內趨勢相反的技術性回調。","a":"週五尾盤不追單；留倉過週末的話在歐美重疊結束前減半，避免週末突發消息跳空。"},
+  {"n":"週六","tag":"週末休市","tone":"closed","t":"全球現貨外匯市場休市。週五紐約尾盤已於星期六 06:00 HKT 正式封盤；週末的地緣政治消息會累積成下週一 06:00 HKT 的開市缺口。","k":"若週五尾盤已出現數據後的反向走勢，週末的新消息可能令下週一開市直接跳空穿越關鍵位。","a":"休市期間不作交易決策；只做復盤：檢視本週時段判斷與風控執行，並整理下週的關鍵位與數據清單。"}
+];
+
+const EVENTS=[
+  {"d":"11/16","dow":1,"h":7.83,"cat":"data","t":"日本第三季 GDP（初值）","x":"23:50 GMT（週日）換算；為日圓交叉盤早盤定價基礎","imp":2},
+  {"d":"11/16","dow":1,"h":21.5,"cat":"data","t":"加拿大 10 月 CPI","x":"08:30 ET 換算；本週首個北美一級數據，USD/CAD 1.4290 為關鍵位","imp":3},
+  {"d":"11/17","dow":2,"h":21.5,"cat":"data","t":"美國 10 月零售銷售","x":"08:30 ET 換算；檢驗 10 月 CPI（+0.4% m/m，連三個月超預期）後的消費韌性","imp":3},
+  {"d":"11/18","dow":3,"h":15,"cat":"data","t":"英國 10 月 CPI","x":"07:00 GMT 換算；預估 3.73%，服務通脹黏性是英央行再加息的依據","imp":3},
+  {"d":"11/19","dow":4,"h":3,"cat":"cb","t":"FOMC 會議紀錄","x":"14:00 ET（11/18 週三下午）換算；12 月加息 25bp 已定價 90%，紀錄決定節奏","imp":3},
+  {"d":"11/19","dow":4,"h":8.5,"cat":"data","t":"澳洲 10 月就業","x":"00:30 GMT 換算；AUD/USD 0.6773 十個月低位下的關鍵催化劑","imp":3},
+  {"d":"11/19","dow":4,"h":21.5,"cat":"data","t":"美國初領失業金人數","x":"08:30 ET 換算；檢驗勞動市場在非農超預期後的延續性","imp":2},
+  {"d":"11/20","dow":5,"h":7.5,"cat":"data","t":"日本 10 月 CPI","x":"23:30 GMT（週四）換算；配合 12/18 日銀加息定價 84%","imp":2},
+  {"d":"11/20","dow":5,"h":15,"cat":"data","t":"英國 10 月零售銷售","x":"07:00 GMT 換算；考驗英國通脹升溫後的消費韌性","imp":2},
+  {"d":"11/20","dow":5,"h":23,"cat":"data","t":"美國密歇根大學消費者信心指數（初值）","x":"10:00 ET 換算；週五收盤前的最後一輪美元定價","imp":2},
+  {"d":"11/21","dow":6,"h":1,"cat":"geo","t":"Moody’s 英國評級檢討","x":"17:00 GMT（週五倫敦收市後）；財政壓力若被點名會直接衝擊英鎊","imp":3}
+];
+
+const RECUR=[
+  {"h":7,"cat":"brk","t":"亞洲開盤跳空窗口","x":"日圓干預消息、亞洲央行政見在此傳導，隔夜跳空風險最高","imp":2},
+  {"h":15,"cat":"brk","t":"歐洲官員講話／波幅擴大","x":"UTC 07:00 起每小時 pip 區間明顯放大","imp":2},
+  {"h":21.5,"cat":"brk","t":"美國一級數據發布","x":"本週一至五連續有數據；滑點與停頓風險最高的一刻","imp":3},
+  {"h":22,"cat":"brk","t":"Fed 官員點評窗口","x":"美東 09:00 起為官員講話密集時段","imp":2}
+];
+
+const GEO_STAND=[
+  {"h":2,"cat":"geo","t":"美伊和談與中東局勢","x":"協議希望令油價單日跌逾 10%，避險溢價快速收縮；隨時可能逆轉","imp":2},
+  {"h":5,"cat":"geo","t":"USD/JPY 160 干預風險","x":"日本今年已動用約 27 兆日圓干預；財務大臣與首相均已發出警告","imp":3},
+  {"h":9,"cat":"geo","t":"中國外匯政策收緊","x":"外匯存款準備金率 11/15 起升至 6%，在岸人民幣 6.67 附近企穩、雙向波動放大","imp":2},
+  {"h":11,"cat":"geo","t":"美國中期選舉後政策轉向","x":"民主黨橫掃國會，AI 監管疑慮令科技股連續走弱，美元與美股共用同一變數","imp":2},
+  {"h":18,"cat":"geo","t":"法國財政與歐元政治溢價","x":"2027 年總統大選極右翼風險，壓制歐元短線表現","imp":2}
+];
+
+const CAT={
+  "cb":{"c":"#c62828","bg":"#fdeaea","zh":"央行政策"},
+  "data":{"c":"#1565c0","bg":"#e6f0fb","zh":"經濟數據"},
+  "geo":{"c":"#ef6c00","bg":"#fdeee0","zh":"地緣政治"},
+  "brk":{"c":"#6a1b9a","bg":"#f0e6f7","zh":"突發風險"}
+};
+
+const SNAP={
+  "date":"2026-11-14（週六）紐約收市",
+  "snap":"DXY 103.17（19 個月高，年初至今 +4.95%）；EUR/USD 1.1022、GBP/USD 1.3211、AUD/USD 0.6773（10 個月低）、USD/JPY 159.71（曾觸 160.19）、USD/CHF 0.8391（主要貨幣最弱）、USD/CAD 1.4270；美 10 年期債息 ~5.1%；黃金 >$4,000、油價單日 −10%（美伊協議希望）"
+};
+
+const DAY_ZH=["日","一","二","三","四","五","六"];
+const DAY_FULL=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+const PAD=n=>String(n).padStart(2,'0');
+const el=id=>document.getElementById(id);
+const SEG_COL={ASIA:'#2f6fb0',EU:'#1c8a5a',NY:'#d1622a','ASIA+EU':'#7b4fd0','EU+NY':'#c98a1e','PRE-EU':'#1f8f86','—':'#8496ab'};
+let ACTIVE=new Set(['cb','data','geo','brk']);
+
+/* ===== 狀態 ===== */
+const ST={day:0,hour:0,live:true};
+function nowHkt(){const n=new Date();return new Date(n.getTime()+n.getTimezoneOffset()*60000+8*3600000);}
+function hktH(d){return d.getHours()+d.getMinutes()/60+d.getSeconds()/3600;}
+function segIndex(h){
+  const hn=((h%24)+24)%24;
+  for(let i=0;i<WEDGES.length;i++){
+    if(hn>=WEDGES[i].s && hn<WEDGES[i].e) return i;
+  }
+  return 0;
+}
+
+/* ===== 交易日／市場狀態引擎 ===== */
+function marketState(day,hour){
+  const m=hour*60;
+  /* 現貨外匯：週日 17:00 ET（＝週一 06:00 HKT）開市，週五 17:00 ET（＝週六 06:00 HKT）收市 */
+  if(day===0) return {st:'closed',label:'週末休市（星期日）',note:'全球現貨外匯整日封盤，週日 17:00 ET（＝星期一 06:00 HKT）才重開。',reopen:'星期一 06:00 HKT 開市'};
+  if(day===1&&m<360) return {st:'closed',label:'週末休市（開市前夕）',note:'尚未進入本週交易時段，星期一 06:00 HKT 才正式開市。',reopen:'今日 06:00 HKT 開市'};
+  if(day===6&&m>=360) return {st:'closed',label:'週末休市（星期六）',note:'週五紐約已於星期六 06:00 HKT 收市，現貨外匯進入週末封盤。',reopen:'下星期一 06:00 HKT 開市'};
+  if(day===6) return {st:'open',label:'開市中（星期五尾盤）',note:'仍在週五交易時段內，06:00 HKT 封盤後進入週末。',reopen:'星期六 06:00 HKT 封盤'};
+  if(m>=300&&m<360) return {st:'rollover',label:'日結換日 · 流動性極低',note:'紐約已收市（17:00 ET）、下一交易日未開市，為每日換日（Rollover）低谷，點差極闊。',reopen:'06:00 HKT 進入下一交易日'};
+  return {st:'open',label:'開市中',note:'正常交易時段，流動性由各主要金融中心輪替。',reopen:'—'};
+}
+function tradingDayNo(day,hour){
+  const m=hour*60;
+  if(day===6&&m<360) return '第 5 日（星期五尾盤）';
+  if(day===1&&m<360) return '休市（開市前夕）';
+  if(day===0||(day===6&&m>=360)) return '週末休市';
+  if(day===1) return '第 1 日';
+  if(day===2) return '第 2 日';
+  if(day===3) return '第 3 日';
+  if(day===4) return '第 4 日';
+  if(day===5) return '第 5 日';
+  return '—';
+}
+
+/* ===== 事件層 ===== */
+const elayer=el('eventLayer');
+function evMarker(h,cat,title,detail,dateLabel,recur,lane){
+  const c=CAT[cat],a=(h/24)*360,rad=(a-90)*Math.PI/180,r=398+lane*9.5;
+  const x=400+r*Math.cos(rad),y=400+r*Math.sin(rad);
+  const x2=400+392*Math.cos(rad),y2=400+392*Math.sin(rad);
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('class','ev');g.setAttribute('data-cat',cat);g.style.cursor='pointer';
+  const inner=recur?'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="5.3" fill="#fff" stroke="'+c.c+'" stroke-width="2.2"/>'
+                  :'<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="6" fill="'+c.c+'" stroke="#fff" stroke-width="1.8"/>';
+  g.innerHTML='<line x1="'+x2.toFixed(1)+'" y1="'+y2.toFixed(1)+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+c.c+'" stroke-width="1.6" opacity="0.65"/>'+inner;
+  g.addEventListener('mousemove',e=>showTip(e,(recur?'⟳ ':'● ')+c.zh+'｜'+title,detail+(dateLabel?'<br><span style="opacity:.78">'+dateLabel+'</span>':'')));
+  g.addEventListener('mouseleave',hideTip);
+  g.addEventListener('click',()=>{ST.hour=h;ST.live=false;setScrub(h*60);render();});
+  elayer.appendChild(g);
+}
+function buildEventLayer(){
+  elayer.innerHTML='';
+  const all=[
+    ...EVENTS.map(v=>({h:v.h,cat:v.cat,t:v.t,x:v.x,d:v.d+' '+hhmm(v.h),recur:false})),
+    ...RECUR.map(v=>({h:v.h,cat:v.cat,t:v.t,x:v.x,d:'每日重複 · '+hhmm(v.h),recur:true})),
+    ...GEO_STAND.map(v=>({h:v.h,cat:v.cat,t:v.t,x:v.x,d:'常設風險窗口 · '+hhmm(v.h),recur:true}))
+  ];
+  const gr={};
+  all.forEach(v=>{const k=Math.round(v.h*60);(gr[k]=gr[k]||[]).push(v);});
+  Object.keys(gr).forEach(k=>gr[k].forEach((v,i)=>evMarker(v.h,v.cat,v.t,v.x,v.d,v.recur,i)));
+  applyLayers();
+}
+function applyLayers(){
+  document.querySelectorAll('.ev').forEach(g=>{g.style.display=ACTIVE.has(g.dataset.cat)?'':'none';});
+}
+
+/* ===== Tooltip ===== */
+const tip=el('tip');
+function showTip(e,title,detail){
+  const wr=el('wheelWrap').getBoundingClientRect();
+  tip.innerHTML='<b>'+title+'</b><br>'+detail;
+  tip.style.opacity='1';
+  const tw=tip.offsetWidth,th=tip.offsetHeight;
+  let x=e.clientX-wr.left+14,y=e.clientY-wr.top+12;
+  if(x+tw>wr.width) x=e.clientX-wr.left-tw-14;
+  if(y+th>wr.height) y=wr.height-th-6;
+  tip.style.left=Math.max(4,x)+'px';
+  tip.style.top=Math.max(4,y)+'px';
+}
+function hideTip(){tip.style.opacity='0';}
+
+/* ===== 指標線 ===== */
+function drawNow(h){
+  const a=(h/24)*360,rad=(a-90)*Math.PI/180;
+  const x1=400+170*Math.cos(rad),y1=400+170*Math.sin(rad);
+  const x2=400+392*Math.cos(rad),y2=400+392*Math.sin(rad);
+  const xm=400+382*Math.cos(rad),ym=400+382*Math.sin(rad);
+  el('nowMarker').innerHTML='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="#e03a3a" stroke-width="2.4" stroke-dasharray="7 5" opacity="0.9"/>'+
+    '<circle cx="'+xm.toFixed(1)+'" cy="'+ym.toFixed(1)+'" r="9" fill="#e03a3a" stroke="#fff" stroke-width="2.4"/><circle cx="'+xm.toFixed(1)+'" cy="'+ym.toFixed(1)+'" r="3.4" fill="#fff"/>';
+}
+function drawPreview(h){
+  if(!ST.live){
+    const a=(h/24)*360,rad=(a-90)*Math.PI/180;
+    const x1=400+170*Math.cos(rad),y1=400+170*Math.sin(rad);
+    const x2=400+392*Math.cos(rad),y2=400+392*Math.sin(rad);
+    const xm=400+382*Math.cos(rad),ym=400+382*Math.sin(rad);
+    el('previewMarker').innerHTML='<line x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'" stroke="#c98a1e" stroke-width="2" stroke-dasharray="4 4" opacity="0.85"/>'+
+      '<circle cx="'+xm.toFixed(1)+'" cy="'+ym.toFixed(1)+'" r="8.5" fill="#f2c14e" stroke="#12263f" stroke-width="2"/>';
+  } else {
+    el('previewMarker').innerHTML='';
+  }
+}
+function arcPath(rO,rI,a1,a2){
+  const p=(r,d)=>{const q=(d-90)*Math.PI/180;return[400+r*Math.cos(q),400+r*Math.sin(q)];};
+  const p1=p(rO,a1),p2=p(rO,a2),p3=p(rI,a2),p4=p(rI,a1),lg=(a2-a1)>180?1:0;
+  return 'M'+p1[0].toFixed(2)+','+p1[1].toFixed(2)+' A'+rO+','+rO+' 0 '+lg+' 1 '+p2[0].toFixed(2)+','+p2[1].toFixed(2)+' L'+p3[0].toFixed(2)+','+p3[1].toFixed(2)+' A'+rI+','+rI+' 0 '+lg+' 0 '+p4[0].toFixed(2)+','+p4[1].toFixed(2)+' Z';
+}
+function drawActive(idx){
+  const w=WEDGES[idx],a1=(w.s/24)*360,a2=(w.e/24)*360,col=SEG_COL[w.tag];
+  el('activeSeg').innerHTML='<path d="'+arcPath(390,302,a1,a2)+'" fill="none" stroke="'+col+'" stroke-width="5" opacity="0.55" filter="url(#act)"/>'+
+    '<path d="'+arcPath(170,120,a1,a2)+'" fill="'+col+'" opacity="0.16"/><path d="'+arcPath(170,120,a1,a2)+'" fill="none" stroke="'+col+'" stroke-width="1.8" opacity="0.75"/>';
+  el('activeSeg').setAttribute('opacity','1');
+  document.querySelectorAll('#masterTable tbody tr').forEach(tr=>{
+    tr.classList.toggle('row-active', Number(tr.dataset.seg)===idx);
+  });
+}
+
+/* ===== 選取時段 ===== */
+function selectSeg(idx){
+  const w=WEDGES[idx],a=AI[idx];
+  const ms=marketState(ST.day,ST.hour);
+  const dc=DAY_CTX[ST.day];
+  const closed=ms.st==='closed';
+  el('roZh').textContent=closed?w.cl:w.zh;
+  el('roEn').textContent=closed?('原定時段：'+w.zh+' · 休市期間不適用'):w.en;
+  const b=el('roBadge');b.textContent=w.tzFull;b.style.background=SEG_COL[w.tag];
+  el('roDay').textContent=DAY_FULL[ST.day];
+  el('roHkt').textContent=PAD(w.s)+':00 → '+PAD(w.e)+':00';
+  el('roUtc').textContent=PAD((w.s+16)%24)+':00 → '+PAD((w.e+16)%24)+':00';
+  el('roEt').textContent=PAD((w.s+13)%24)+':00 → '+PAD((w.e+13)%24)+':00';
+  el('roState').textContent=ms.label+' · '+tradingDayNo(ST.day,ST.hour)+' · '+ms.note;
+  el('roWatch').textContent=closed?dc.t:a.now;
+  el('roStrat').textContent=closed?dc.a:a.act;
+  el('roPairs').textContent=w.pr;
+  el('roPills').innerHTML=['類型：'+w.k,'時區：'+w.tzFull,'級別：'+'★'.repeat(w.hot||1)+'☆'.repeat(3-(w.hot||1))]
+    .map((t,i)=>'<span class="pill'+(i===0?(closed?' off':' on'):'')+'">'+t+'</span>').join('')+
+    '<span class="pill'+(closed?' off':(ms.st==='rollover'?' warn':' on'))+'">'+ms.label+'</span>';
+  drawActive(idx);
+  renderAI(idx);
+}
+
+/* ===== AI 簡報 ===== */
+function hhmm(v){const h=Math.floor(v),m=Math.round((v-h)*60);return PAD(h)+':'+PAD(m);}
+function dayEvents(dow){
+  return EVENTS.filter(e=>e.dow===dow).map(e=>({h:e.h,t:e.t,x:e.x,d:e.d,c:e.cat}));
+}
+function nearEvents(h){
+  const out=[];
+  const push=(e,label)=>{let dh=e.h-h;if(dh<-0.001)dh+=24;if(dh<24)out.push({e,label,dh});};
+  EVENTS.forEach(e=>push(e,e.d));
+  RECUR.forEach(e=>push(e,'每日重複'));
+  GEO_STAND.forEach(e=>push(e,'常設背景'));
+  out.sort((a,b)=>a.dh-b.dh||(b.e.imp||1)-(a.e.imp||1));
+  const cnt={},keep=[];
+  for(const o of out){
+    const k=Math.floor(o.e.h);cnt[k]=cnt[k]||0;
+    if(cnt[k]<2){cnt[k]++;keep.push(o);}
+    if(keep.length>=6)break;
+  }
+  return keep;
+}
+function renderAI(idx){
+  const w=WEDGES[idx],a=AI[idx],h=ST.hour;
+  const d=nowHkt(),ms=marketState(ST.day,h),dc=DAY_CTX[ST.day];
+  const closed=ms.st==='closed';
+  el('aiTitle').textContent=closed
+    ? (DAY_FULL[ST.day]+' 休市 · '+w.cl+' HKT '+PAD(w.s)+':00–'+PAD(w.e)+':00'+(ST.live?'（現在）':'（預覽）'))
+    : (DAY_FULL[ST.day]+' '+w.zh+' HKT '+PAD(w.s)+':00–'+PAD(w.e)+':00'+(ST.live?'（現在）':'（預覽）'));
+  const st=el('aiStatus');
+  st.textContent=ms.label;
+  st.className='ai-status '+(closed?'st-closed':(ms.st==='rollover'?'st-roll':'st-open'));
+  el('aiStamp').innerHTML='系統時間：HKT '+PAD(d.getHours())+':'+PAD(d.getMinutes())+' ｜ '+(LIVE.ok?('即時數據 '+LIVE.timeHKT+' HKT'):('依據 FX1 三時段系統 ＋ 快照 '+SNAP.date));
+
+  /* 星期脈絡 */
+  el('aiDay').querySelector('.dh').innerHTML='📅 '+dc.n+' · '+dc.tag;
+  el('aiDay').querySelector('.dt').textContent=tradingDayNo(ST.day,h);
+  el('aiDayTxt').textContent=dc.t;
+  el('aiDay').style.borderLeftColor=closed?'#8496ab':'#2f6fb0';
+
+  /* 四方塊 */
+  ['bxNow','bxGeo','bxCb','bxData'].forEach(id=>el(id).className='ai-box'+(closed?' closed':''));
+  el('aiNow').textContent=closed
+    ? (ms.note+' 現貨外匯沒有任何成交，因此本時段不存在盤中趨勢或即時突破；市場維持在休市前最後報價（'+(LIVE.ok?(LIVE.timeHKT+' 即時：'+liveSummary()):('【快照】'+SNAP.snap))+'），直到開市才會有新定價。')
+    : (a.now+(LIVE.ok?(' 【即時 '+LIVE.timeHKT+' HKT】'+liveSummary()):(' 【快照】'+SNAP.snap)));
+  el('aiGeo').textContent=a.geo+(LIVE.ok&&LIVE.news.length?(' 【即時頭條】'+liveHeadlineTxt(2)):'');
+  if(LIVE.ok){
+    const ins=el('aiNow');
+    const extra=liveInsight();
+    if(extra) ins.textContent=ins.textContent+'　【即時解讀】'+extra;
+  }
+  el('aiCb').textContent=closed
+    ? (a.cb+'（休市期間政策預期仍會隨官員發言與局勢消息發酵，並於開市跳空反映。）')
+    : a.cb;
+
+  const inHour=[];
+  EVENTS.forEach(e=>{if(e.dow===ST.day && Math.floor(e.h)===Math.floor(h))inHour.push({t:e.t,x:e.x,l:e.d});});
+  RECUR.forEach(e=>{if(Math.floor(e.h)===Math.floor(h))inHour.push({t:e.t,x:e.x,l:'每日重複'});});
+  GEO_STAND.forEach(e=>{if(Math.floor(e.h)===Math.floor(h))inHour.push({t:e.t,x:e.x,l:'常設背景'});});
+  const dayEv=dayEvents(ST.day);
+
+  if(closed){
+    el('aiData').textContent='休市期間不會有任何經濟數據公布（'+dc.k+'）。本週尚待公布的關鍵數據：'+
+      EVENTS.slice(0,4).map(e=>e.d+' '+hhmm(e.h)+' '+e.t).join('；')+'。';
+  } else if(inHour.length){
+    el('aiData').textContent='【本時段事件】'+inHour.map(x=>'◉ '+x.t+'（'+x.l+'）：'+x.x).join(' ｜ ')+' '+a.brk;
+  } else {
+    el('aiData').textContent=a.brk+(dayEv.length?' 【'+dc.n+'日程】'+dayEv.map(e=>hhmm(e.h)+' '+e.t).join('；'):'');
+  }
+
+  el('aiAct').innerHTML='<b>本時段操作重點 ▸</b> '+(closed?dc.a:a.act);
+  const near=nearEvents(h);
+  const up=near.map(x=>'◉ '+hhmm(x.e.h)+' '+x.e.t+'（'+CAT[x.e.cat].zh+(x.label!=='每日重複'&&x.label!=='常設背景'?'·'+x.label:'')+'）').join(' ｜ ');
+  el('aiUp').innerHTML='<b>接下來 24 小時 ▸</b> '+(up||'無重大事件')+(closed?' ｜ '+ms.reopen:'');
+
+  window.__brief='【外匯 24H 市場簡報｜'+DAY_FULL[ST.day]+' '+(closed?w.cl+'（休市）':w.zh)+' HKT '+PAD(w.s)+':00–'+PAD(w.e)+':00｜'+ms.label+'】\n\n'+
+    '◆ 市場狀態：'+ms.label+'（'+tradingDayNo(ST.day,h)+'）— '+ms.note+'\n'+
+    '◆ '+dc.n+'定位：'+dc.t+'\n\n'+
+    '◆ 市場現況：'+(closed?ms.note+'（休市，維持在休市前最後報價）':a.now+' '+(LIVE.ok?liveSummary():SNAP.snap))+'\n\n'+
+    '◆ 地緣政治／外交風波：'+a.geo+'\n\n'+
+    '◆ 央行政策：'+a.cb+'\n\n'+
+    '◆ 數據公布與突發事件：'+el('aiData').textContent+'\n\n'+
+    '◆ 本時段操作重點：'+(closed?dc.a:a.act)+'\n\n'+
+    '（'+(LIVE.ok?('即時數據 '+LIVE.timeHKT+' HKT'):('市場快照 '+SNAP.date))+'；時段分析源自 FX1 三時段交易系統）'+
+    (LIVE.ok?('\n\n◆ 即時定價（抓取於 '+LIVE.timeHKT+' HKT）\n'+liveSummary()+'\n\n◆ 快速解讀\n'+liveInsight()+
+      (LIVE.news.length?('\n\n◆ 即時頭條\n'+LIVE.news.slice(0,6).map(x=>'・['+CAT[x.cat].zh+'] '+x.title+'（'+x.src+'）').join('\n')):'')):'');
+}
+
+/* ══════════════════════════════════════════════════════════════
+   即時數據引擎 — 實際呼叫公開 API 取得即時市場現況
+   ══════════════════════════════════════════════════════════════ */
+const LIVE={ok:false,ts:0,timeHKT:'',rates:{},quotes:{},dxy:null,gold:null,crypto:{},news:[],src:{},errors:[],fxOk:false};
+const REF={'EUR/USD':1.1022,'GBP/USD':1.3211,'USD/JPY':159.71,'AUD/USD':0.6773,'USD/CAD':1.4270,'USD/CHF':0.8391,'USD/CNH':6.67,'DXY':103.17};
+const FX_LIST='EUR,GBP,JPY,AUD,CAD,CHF,SEK,CNY,HKD,SGD,NOK,NZD,XAU';
+
+/* ICE 美元指數公式（已對照兩組公開參考值驗證：EURUSD 1.1→101.787、1.05→104.552） */
+function dxyCalc(e,j,g,c,s,ch){
+  return 50.14348112*Math.pow(e,-0.576)*Math.pow(j,0.136)*Math.pow(g,-0.119)*Math.pow(c,0.091)*Math.pow(s,0.042)*Math.pow(ch,0.036);
+}
+function fmt(v,d){ if(v==null||!isFinite(v)) return '—'; return Number(v).toFixed(d==null?4:d); }
+function pctChg(cur,ref){ if(cur==null||ref==null||!isFinite(cur)||!isFinite(ref)) return null; return (cur-ref)/ref*100; }
+function clsOf(p){ return p==null?'flat':(p>0.0005?'up':(p<-0.0005?'down':'flat')); }
+function arrowOf(p){ return p==null?'':(p>0.0005?'▲':(p<-0.0005?'▼':'•')); }
+function hktStr(d){ return PAD(d.getHours())+':'+PAD(d.getMinutes())+':'+PAD(d.getSeconds()); }
+
+async function grabJSON(url,ms){
+  const ctl=new AbortController(), t=setTimeout(()=>ctl.abort(),ms||14000);
+  try{
+    const r=await fetch(url,{signal:ctl.signal,cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function grabText(url,ms){
+  const ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),ms||12000);
+  try{
+    const r=await fetch(url,{signal:ctl.signal,cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.text();
+  } finally { clearTimeout(t); }
+}
+/* RSS 時間 → 香港時間 */
+function relTime(raw){
+  const ms=tsVal(raw);
+  if(!ms) return String(raw||'').slice(0,16);
+  const h=new Date(ms+8*3600000);
+  return PAD(h.getUTCMonth()+1)+'/'+PAD(h.getUTCDate())+' '+PAD(h.getUTCHours())+':'+PAD(h.getUTCMinutes())+' HKT';
+}
+function tsVal(raw){
+  if(!raw) return 0;
+  let s=String(raw).trim();
+  if(/^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}/.test(s)) s=s.replace(' ','T')+'Z';  /* 無時區者視為 UTC */
+  const d=new Date(s);
+  return isNaN(d.getTime())?0:d.getTime();
+}
+
+/* ── 新聞分類 ── */
+function classify(t){
+  const s=t.toLowerCase();
+  if(/fed|federal reserve|powell|warsh|lagarde|ecb|bank of england|boe\b|bank of japan|boj|rba|central bank|rate hike|rate cut|interest rate|monetary|policy rate|governor/.test(s)) return 'cb';
+  if(/cpi|inflation|ppi|payroll|jobs report|unemployment|retail sales|gdp|pmi|yield|treasury|consumer confidence|trade balance|industrial production|housing|jobs\b/.test(s)) return 'data';
+  if(/war|conflict|strike|military|attack|iran|israel|ukraine|russia|beijing|taiwan|tariff|sanction|treaty|election|diplomat|nuclear|ceasefire|opec|middle east/.test(s)) return 'geo';
+  return 'brk';
+}
+/* 外匯相關性評分：越貼近匯率／央行／宏觀越高 */
+function relevance(t){
+  const s=t.toLowerCase();
+  let sc=0;
+  if(/\bdollar\b|dollar index|\beuro\b|\byen\b|\bpound\b|sterling|franc|forex|currency|currencies|currency/.test(s)) sc+=5;
+  if(/federal reserve|\bfed\b|ecb|bank of japan|boj|bank of england|central bank|monetary|interest rate|rate hike|rate cut|rate decision|policy rate/.test(s)) sc+=5;
+  if(/inflation|\bcpi\b|\bppi\b|treasury|\byield\b|bond yield|jobs|payroll|unemployment|retail sales|\bgdp\b|pmi|interest/.test(s)) sc+=3;
+  if(/yen intervention|intervene|verbal intervention|currency war|devaluation/.test(s)) sc+=4;
+  if(/\boil\b|\bgold\b|\bsilver\b|opec|crude|commodit/.test(s)) sc+=2;
+  if(/stock|dow|nasdaq|s&p|shares|equit|market/.test(s)) sc+=1;
+  if(/actor|film|movie|celebrit|recipe|love|horoscop|spy|drama|season/.test(s)) sc-=8;
+  return sc;
+}
+function splitTitle(t){
+  const i=t.lastIndexOf(' - ');
+  if(i>18&&t.length-i<42) return {head:t.slice(0,i).trim(),src:t.slice(i+3).trim()};
+  return {head:t.trim(),src:''};
+}
+
+/* ── 抓取即時匯率 + 黃金 ── */
+async function fetchFX(){
+  const u='https://api.fxratesapi.com/latest?base=USD&currencies='+FX_LIST+'&resolution=1m';
+  const j=await grabJSON(u,14000);
+  if(!j.success||!j.rates) throw new Error((j.error&&j.error.message)||'回應格式異常');
+  const R=j.rates, inv=c=>1/R[c];
+  const q={
+    'EUR/USD':inv('EUR'),'GBP/USD':inv('GBP'),'USD/JPY':R.JPY,'AUD/USD':inv('AUD'),
+    'USD/CAD':R.CAD,'USD/CHF':R.CHF,'USD/CNH':R.CNY,'USD/SGD':R.SGD,'USD/HKD':R.HKD,
+    'USD/NOK':R.NOK,'USD/SEK':R.SEK,'AUD/JPY':R.JPY/R.AUD,'EUR/JPY':R.JPY/R.EUR,
+    'GBP/JPY':R.JPY/R.GPY,'XAU/USD':inv('XAU')
+  };
+  LIVE.rates=R; LIVE.quotes=q;
+  LIVE.dxy=dxyCalc(q['EUR/USD'],q['USD/JPY'],q['GBP/USD'],q['USD/CAD'],q['USD/SEK'],q['USD/CHF']);
+  LIVE.gold=q['XAU/USD'];
+  LIVE.src.fx={ok:true,detail:'1 分鐘解析度 · '+j.date};
+  LIVE.fxOk=true;
+  return j;
+}
+/* ── 抓取加密貨幣（風險偏好） ── */
+async function fetchCrypto(){
+  const j=await grabJSON('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true&include_last_updated_at=true',12000);
+  if(!j.bitcoin) throw new Error('回應格式異常');
+  LIVE.crypto={BTC:{px:j.bitcoin.usd,chg:j.bitcoin.usd_24h_change},ETH:{px:j.ethereum&&j.ethereum.usd,chg:j.ethereum&&j.ethereum.usd_24h_change}};
+  LIVE.src.crypto={ok:true,detail:'BTC/ETH 即時'};
+}
+/* ── 抓取財經頭條（錯開請求，避免上游限流） ── */
+const FEEDS=[
+  {k:'cnbc',n:'CNBC 財經',u:'https://www.cnbc.com/id/10000664/device/rss/rss.html'},
+  {k:'cnbceco',n:'CNBC 經濟',u:'https://www.cnbc.com/id/20910258/device/rss/rss.html'},
+  {k:'mwpulse',n:'MarketWatch 市場',u:'https://feeds.content.dowjones.io/public/rss/mw_marketpulse'},
+  {k:'mwbull',n:'MarketWatch 快訊',u:'https://feeds.content.dowjones.io/public/rss/mw_bulletins'},
+  {k:'gnews',n:'GoogleNews 外匯',via:'rss2json',u:'https://news.google.com/rss/search?q=forex+dollar+central+bank+rates&hl=en-US&gl=US&ceid=US:en'}
+];
+async function fetchOneFeed(f){
+  if(f.via==='rss2json'){
+    const j=await grabJSON('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(f.u),14000);
+    if(j.status!=='ok'||!j.items) throw new Error(String(j.message||'無回應').slice(0,34));
+    return j.items.slice(0,16).map(it=>{
+      const raw=String(it.title||'').replace(/<[^>]+>/g,'').trim();
+      const sp=splitTitle(raw);
+      return {title:sp.head,src:sp.src||f.n,link:it.link||'',ts:it.pubDate||'',t:tsVal(it.pubDate)};
+    });
+  }
+  const txt=await grabText(f.u,12000);
+  const doc=new DOMParser().parseFromString(txt,'text/xml');
+  if(doc.querySelector('parsererror')) throw new Error('XML 解析失敗');
+  return [...doc.querySelectorAll('item')].slice(0,16).map(it=>{
+    const g=s=>{const e=it.querySelector(s);return e?(e.textContent||'').trim():'';};
+    const raw=g('title');
+    const sp=splitTitle(raw);
+    return {title:sp.head,src:sp.src||g('source')||f.n,link:g('link'),ts:g('pubDate'),t:tsVal(g('pubDate'))};
+  });
+}
+async function fetchNews(){
+  const got=[];
+  const direct=FEEDS.filter(f=>f.via!=='rss2json');
+  const gfeed=FEEDS.filter(f=>f.via==='rss2json');
+  await Promise.all(direct.map(async f=>{
+    try{
+      const items=await fetchOneFeed(f);
+      got.push(...items);
+      LIVE.src[f.k]={ok:true,detail:f.n+' · '+items.length+' 則'};
+    }catch(e){ LIVE.src[f.k]={ok:false,detail:f.n+' 失敗：'+String(e.message||e).slice(0,26)}; }
+  }));
+  for(const f of gfeed){
+    try{
+      const items=await fetchOneFeed(f);
+      got.push(...items);
+      LIVE.src[f.k]={ok:true,detail:f.n+' · '+items.length+' 則'};
+    }catch(e){ LIVE.src[f.k]={ok:false,detail:f.n+' 失敗：'+String(e.message||e).slice(0,26)}; }
+  }
+  if(!got.length) LIVE.src._all={ok:false,detail:'所有新聞來源皆失敗'};
+  const seen={},out=[];
+  got.forEach(it=>{
+    const raw=(it.title||'').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').trim();
+    if(!raw||seen[raw]) return; seen[raw]=1;
+    out.push({title:raw,src:it.src,cat:classify(raw),ts:it.ts,link:it.link,t:it.t||0});
+  });
+  const nowMs=Date.now();
+  out.forEach(o=>{
+    o.rel=relevance(o.title);
+    const ageH=o.t?((nowMs-o.t)/3600000):999;
+    o.ageH=ageH;
+    o.score=o.rel*20-ageH;            /* 相關性 × 20 − 幾小時前 → 新且相關者優先 */
+  });
+  const fresh=out.filter(o=>o.ageH<96);   /* 只保留 4 天內 */
+  fresh.sort((a,b)=>(b.score-a.score)||((b.t||0)-(a.t||0)));
+  LIVE.news=fresh.slice(0,16);
+}
+
+/* ── 主抓取流程 ── */
+let liveBusy=false;
+async function fetchLive(force){
+  if(liveBusy) return;
+  if(LIVE.ok&&!force&&(Date.now()-LIVE.ts)<240000){ flashBadge('ok','資料已是最新'); return; }
+  liveBusy=true;
+  LIVE.fxOk=false;
+  const btn=el('btnLive'),badge=el('liveBadge');
+  btn.disabled=true;btn.textContent='⟳ 抓取中…';
+  badge.className='live-badge busy';badge.textContent='抓取中…';
+  el('srcStatus').innerHTML='<span class="busy">⏳ 正在連線抓取…</span>';
+  const errs=[];
+  await Promise.all([
+    fetchFX().catch(e=>{errs.push('匯率：'+e.message);LIVE.src.fx={ok:false,detail:'匯率抓取失敗：'+e.message.slice(0,34)};}),
+    fetchCrypto().catch(e=>{errs.push('加密：'+e.message);LIVE.src.crypto={ok:false,detail:'加密抓取失敗：'+e.message.slice(0,28)};}),
+    fetchNews().catch(e=>{errs.push('新聞：'+e.message);})
+  ]);
+  if(LIVE.fxOk&&LIVE.quotes&&Object.keys(LIVE.quotes).length){
+    LIVE.ok=true;LIVE.ts=Date.now();
+    const d=nowHkt();LIVE.timeHKT=hktStr(d);
+    badge.className='live-badge ok';badge.textContent='已更新 '+LIVE.timeHKT;
+    el('liveTime').textContent='最後更新：香港時間 '+LIVE.timeHKT+'（'+DAY_FULL[d.getDay()]+'）';
+  }else if(LIVE.ok){
+    badge.className='live-badge busy';badge.textContent='更新失敗 · 沿用舊數據';
+    el('liveTime').textContent='沿用上次成功資料（'+LIVE.timeHKT+'）';
+  }else{
+    badge.className='live-badge err';badge.textContent='抓取失敗';
+    el('liveTime').textContent='—';
+  }
+  LIVE.errors=errs;
+  renderLive();renderTicker();
+  if(LIVE.ok){ try{ render(); }catch(e){} }
+  btn.disabled=false;btn.textContent='⟳ 更新即時數據';
+  liveBusy=false;
+}
+function flashBadge(c,t){ const b=el('liveBadge');b.className='live-badge '+c;b.textContent=t;setTimeout(()=>{ if(LIVE.ok){b.className='live-badge ok';b.textContent='已更新 '+LIVE.timeHKT;} },1600); }
+
+/* ── 繪製即時面板 ── */
+const QROWS=[
+  ['DXY','美元指數',3,true],['EUR/USD','歐元／美元',4,true],['USD/JPY','美元／日圓',3,true],
+  ['GBP/USD','英鎊／美元',4,false],['AUD/USD','澳元／美元',4,false],['USD/CAD','美元／加元',4,false],
+  ['USD/CHF','美元／瑞郎',4,false],['USD/CNH','美元／離岸人民幣',4,false],
+  ['EUR/JPY','歐元／日圓',3,false],['GBP/JPY','英鎊／日圓',3,false],['AUD/JPY','澳元／日圓',3,false],
+  ['XAU/USD','黃金／盎司',2,true],['USD/SEK','美元／瑞典克朗',4,false]
+];
+function renderLive(){
+  const g=el('quoteGrid');
+  if(!LIVE.ok){
+    g.innerHTML='<div class="quote"><div class="qk">抓取失敗</div><div class="qv ph">—</div></div>';
+  }else{
+    g.innerHTML=QROWS.map(([k,label,d,hl])=>{
+      const v=k==='DXY'?LIVE.dxy:LIVE.quotes[k];
+      const p=pctChg(v,REF[k]);
+      return '<div class="quote'+(hl?' hl':'')+'"><div class="qk">'+k+' · '+label+'</div>'+
+        '<div class="qv">'+fmt(v,d)+'</div>'+
+        '<div class="qd '+clsOf(p)+'">'+(p==null?'<span class="flat">— 無基準</span>':arrowOf(p)+' '+Math.abs(p).toFixed(2)+'% <span style="color:#9aa9bb;font-weight:600">vs 11/14</span>')+'</div></div>';
+    }).join('')+
+    (LIVE.crypto.BTC?'<div class="quote"><div class="qk">BTC/USD · 比特幣</div><div class="qv">$'+Math.round(LIVE.crypto.BTC.px).toLocaleString()+'</div><div class="qd '+clsOf(LIVE.crypto.BTC.chg)+'">'+(LIVE.crypto.BTC.chg>0?'▲':'▼')+' '+Math.abs(LIVE.crypto.BTC.chg).toFixed(2)+'% <span style="color:#9aa9bb;font-weight:600">24h</span></div></div>':'')+
+    (LIVE.crypto.ETH?'<div class="quote"><div class="qk">ETH/USD · 以太幣</div><div class="qv">$'+Math.round(LIVE.crypto.ETH.px).toLocaleString()+'</div><div class="qd '+clsOf(LIVE.crypto.ETH.chg)+'">'+(LIVE.crypto.ETH.chg>0?'▲':'▼')+' '+Math.abs(LIVE.crypto.ETH.chg).toFixed(2)+'% <span style="color:#9aa9bb;font-weight:600">24h</span></div></div>':'');
+  }
+  const sub=el('liveSub');
+  if(LIVE.ok){
+    const q=LIVE.quotes,dL=pctChg(LIVE.dxy,REF['DXY']),gl=pctChg(LIVE.gold,4000);
+    sub.innerHTML='<b>即時定價摘要</b>　美元指數 <b>'+fmt(LIVE.dxy,3)+'</b>'+(dL==null?'':'（'+arrowOf(dL)+' '+Math.abs(dL).toFixed(2)+'% vs 11/14 收市 103.17）')+
+      '　EUR/USD <b>'+fmt(q['EUR/USD'],4)+'</b>　USD/JPY <b>'+fmt(q['USD/JPY'],2)+'</b>　GBP/USD <b>'+fmt(q['GBP/USD'],4)+'</b>　AUD/USD <b>'+fmt(q['AUD/USD'],4)+'</b>　USD/CHF <b>'+fmt(q['USD/CHF'],4)+'</b>　USD/CNH <b>'+fmt(q['USD/CNH'],4)+'</b><br>'+
+      '黃金 <b>$'+fmt(LIVE.gold,2)+'</b>'+(gl==null?'':'（'+arrowOf(gl)+' '+Math.abs(gl).toFixed(2)+'% vs $4,000）')+
+      (LIVE.crypto.BTC?'　比特幣 <b>$'+Math.round(LIVE.crypto.BTC.px).toLocaleString()+'</b>（24h '+(LIVE.crypto.BTC.chg>0?'+':'')+LIVE.crypto.BTC.chg.toFixed(2)+'%）':'')+
+      '<br><span style="color:#9aa9bb;font-weight:600">報價時間：'+LIVE.timeHKT+' HKT ｜ 來源：fxratesapi.com（1 分鐘）· CoinGecko · Google News / CNBC</span>';
+  }else{
+    sub.innerHTML='<b style="color:#a52626">即時數據抓取失敗</b>：'+(LIVE.errors.join('；')||'請檢查網絡連線後再按一次按鈕。');
+  }
+  /* 快速解讀 */
+  const ins=el('liveInsightTxt');
+  if(ins) ins.textContent = LIVE.ok ? liveInsight() : '抓取後自動由即時報價與頭條推導。';
+  /* 頭條 */
+  const nl=el('newsList');
+  if(LIVE.news.length){
+    nl.innerHTML=LIVE.news.map(n=>{
+      const c=CAT[n.cat]||CAT.brk;
+      const t=n.ts?relTime(n.ts):'';
+      return '<a class="news-item" href="'+n.link+'" target="_blank" rel="noopener">'+
+        '<span class="nd" style="background:'+c.c+'"></span>'+
+        '<div><div class="nt">'+n.title+'</div><div class="nm"><b>'+c.zh+'</b>'+(n.src?' ・ '+n.src:'')+(t?' ・ '+t:'')+'</div></div></a>';
+    }).join('');
+  }else{
+    nl.innerHTML='<div class="news-item"><span class="nd" style="background:#c3cedb"></span><div><div class="nt">未能取得頭條（來源限流或暫時無法連線），可稍後再按更新。</div></div></div>';
+  }
+  const order=[['fx','匯率 fxratesapi'],['crypto','加密 CoinGecko'],['cnbc','CNBC 財經'],['cnbceco','CNBC 經濟'],['mwpulse','MarketWatch 市場'],['mwbull','MW 快訊'],['gnews','GoogleNews'],['_all','頭條整體']];
+  el('srcStatus').innerHTML=order.map(([k,lbl])=>{
+    const s=LIVE.src[k];
+    if(!s) return '<span>'+lbl+'：—</span>';
+    return '<span class="'+(s.ok?'ok':'err')+'">'+(s.ok?'✓':'✕')+' '+lbl+'：'+(s.detail||'')+'</span>';
+  }).join('');
+}
+
+/* ── 快速解讀：由即時數據自動推導的市場判讀 ── */
+function liveInsight(){
+  if(!LIVE.ok) return '';
+  const q=LIVE.quotes,out=[];
+  const ch=(k,ref)=>{const p=pctChg(q[k],ref);return p==null?null:p;};
+  const dL=ch('EUR/USD',null);
+  const dxyP=pctChg(LIVE.dxy,REF['DXY']);
+  if(dxyP!=null) out.push('美元指數 '+fmt(LIVE.dxy,3)+'（'+(dxyP>0?'+':'')+dxyP.toFixed(2)+'%，較 11/14 收市'+(dxyP>0?'走強':'走弱')+'）');
+  const eu=ch('EUR/USD',REF['EUR/USD']);
+  if(eu!=null) out.push('EUR/USD '+(eu>0?'升':'跌')+' '+Math.abs(eu).toFixed(2)+'%，與美元指數'+(eu<0?'同向偏弱':'同向偏強'));
+  const jp=ch('USD/JPY',REF['USD/JPY']);
+  if(jp!=null) out.push('USD/JPY '+fmt(q['USD/JPY'],2)+'（'+(jp>0?'+':'')+jp.toFixed(2)+'%），'+(q['USD/JPY']>=160?'已重上 160 干預線，須留意口頭干預':'距 160 干預線尚有空間'));
+  const gl=pctChg(LIVE.gold,4000);
+  if(gl!=null) out.push('黃金 $'+fmt(LIVE.gold,0)+'（'+(gl>0?'+':'')+gl.toFixed(2)+'%，自 $4,000 高位回落'+(gl<0?'，避險溢價收縮':'')+'）');
+  const top=LIVE.news.filter(n=>n.rel>=5).slice(0,2);
+  if(top.length) out.push('外匯主題頭條：'+top.map(n=>'「'+n.title.slice(0,42)+'」').join('、'));
+  const bear=LIVE.news.find(n=>/down|fall|slide|drop|plunge|crash|tumble|sell-off|weak/.test(n.title.toLowerCase())&&n.rel>=2);
+  if(bear) out.push('風險語境：'+bear.title.slice(0,46));
+  return out.join('；')+'。';
+}
+
+/* ── 即時摘要文字（供 AI 簡報使用） ── */
+function liveSummary(){
+  if(!LIVE.ok) return '';
+  const q=LIVE.quotes,dL=pctChg(LIVE.dxy,REF['DXY']);
+  return 'DXY '+fmt(LIVE.dxy,3)+(dL==null?'':'（'+arrowOf(dL)+Math.abs(dL).toFixed(2)+'%）')+
+    '、EUR/USD '+fmt(q['EUR/USD'],4)+'、GBP/USD '+fmt(q['GBP/USD'],4)+'、USD/JPY '+fmt(q['USD/JPY'],2)+
+    '、AUD/USD '+fmt(q['AUD/USD'],4)+'、USD/CHF '+fmt(q['USD/CHF'],4)+'、USD/CNH '+fmt(q['USD/CNH'],4)+
+    '、黃金 $'+fmt(LIVE.gold,0)+(LIVE.crypto.BTC?'、BTC $'+Math.round(LIVE.crypto.BTC.px).toLocaleString():'');
+}
+function liveHeadlineTxt(n){
+  return LIVE.news.slice(0,n).map(x=>'「'+x.title+'」（'+x.src+'）').join('；');
+}
+
+/* ── 跑馬燈 ── */
+function renderTicker(){
+  const set=(id,val,ref,dp)=>{
+    const e=el(id); if(!e) return;
+    if(val==null){ e.className='v ph'; e.innerHTML='—'; return; }
+    const p=pctChg(val,ref);
+    e.className='v';
+    e.innerHTML=fmt(val,dp)+(p==null?'':'<span class="d '+clsOf(p)+'">'+arrowOf(p)+Math.abs(p).toFixed(2)+'%</span>');
+  };
+  set('tkDXY',LIVE.dxy,REF['DXY'],3);
+  set('tkEURUSD',LIVE.quotes['EUR/USD'],REF['EUR/USD'],4);
+  set('tkUSDJPY',LIVE.quotes['USD/JPY'],REF['USD/JPY'],2);
+  set('tkGBPUSD',LIVE.quotes['GBP/USD'],REF['GBP/USD'],4);
+  set('tkAUDUSD',LIVE.quotes['AUD/USD'],REF['AUD/USD'],4);
+  set('tkUSDCAD',LIVE.quotes['USD/CAD'],REF['USD/CAD'],4);
+  set('tkUSDCHF',LIVE.quotes['USD/CHF'],REF['USD/CHF'],4);
+  set('tkUSDCNH',LIVE.quotes['USD/CNH'],REF['USD/CNH'],4);
+  set('tkXAU',LIVE.gold,null,1);
+  set('tkBTC',LIVE.crypto.BTC?LIVE.crypto.BTC.px:null,null,0);
+}
+
+/* ── 綁定按鈕 ── */
+el('btnLive').addEventListener('click',()=>fetchLive(true));
+
+/* 自動更新：每 30 分鐘一次（分頁可見時才執行，避免背景空轉） */
+let autoTimer=null;
+function scheduleAuto(){
+  if(autoTimer) clearInterval(autoTimer);
+  autoTimer=setInterval(()=>{
+    if(document.hidden) return;
+    fetchLive(false);
+  },30*60*1000);
+}
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) scheduleAuto(); });
+scheduleAuto();
+
+/* ===== 圖層切換 ===== */
+document.querySelectorAll('.chip[data-cat]').forEach(ch=>{
+  ch.addEventListener('click',()=>{
+    const c=ch.dataset.cat;
+    if(ACTIVE.has(c)){
+      ACTIVE.delete(c);ch.classList.add('off');ch.classList.remove('on');
+      ch.style.background='';ch.style.color='';ch.querySelector('i').style.background=CAT[c].c;
+    } else {
+      ACTIVE.add(c);ch.classList.remove('off');ch.classList.add('on');
+      ch.style.background=CAT[c].c;ch.style.color='#fff';ch.querySelector('i').style.background='#fff';
+    }
+    applyLayers();
+  });
+});
+
+/* ===== 星期按鈕 ===== */
+const dayBtns=el('dayBtns');
+DAY_ZH.forEach((z,i)=>{
+  const b=document.createElement('button');
+  b.textContent=z;b.dataset.d=i;
+  b.title=DAY_FULL[i]+' '+(i===0||i===6?'（週末休市）':'（交易日）');
+  b.addEventListener('click',()=>{ST.day=i;ST.live=false;syncDayBtns();render();});
+  dayBtns.appendChild(b);
+});
+function syncDayBtns(){
+  [...dayBtns.children].forEach((b,i)=>{
+    b.classList.toggle('on',i===ST.day);
+    b.classList.toggle('off',i===0||i===6);
+  });
+}
+
+/* ===== 扇區與表格互動 ===== */
+document.querySelectorAll('.wedge').forEach(g=>{
+  const i=+g.dataset.i,w=WEDGES[i],a=AI[i];
+  g.style.cursor='pointer';
+  g.addEventListener('mouseenter',()=>g.setAttribute('opacity','0.74'));
+  g.addEventListener('mouseleave',()=>{g.removeAttribute('opacity');hideTip();});
+  g.addEventListener('mousemove',e=>{
+    const ms=marketState(ST.day,ST.hour),cl=ms.st==='closed';
+    showTip(e,(cl?w.cl:w.zh)+'｜'+DAY_FULL[ST.day]+' HKT '+PAD(w.s)+':00–'+PAD(w.e)+':00',
+      '<b>'+ms.label+'</b> — '+ms.note+
+      (cl?'<br><br>📅 '+DAY_CTX[ST.day].t+'<br><br><b>開市前 ▸</b> '+DAY_CTX[ST.day].a
+         :'<br><br>📈 '+a.now+'<br><br>🌍 '+a.geo+'<br><br>🏦 '+a.cb+'<br><br><b>操作 ▸</b> '+a.act));
+  });
+  g.addEventListener('click',()=>{ST.hour=w.s;ST.live=false;setScrub(h2m(w.s));render();});
+  g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ST.hour=w.s;ST.live=false;setScrub(h2m(w.s));render();}});
+});
+function h2m(h){return h*60;}
+
+document.querySelectorAll('#masterTable tbody tr').forEach(tr=>{
+  tr.style.cursor='pointer';
+  tr.addEventListener('click',()=>{
+    const idx=Number(tr.dataset.seg);
+    const w=WEDGES[idx];
+    ST.hour=w.s;ST.live=false;setScrub(w.s*60);render();
+    el('rightScroll').scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ===== 滑桿 ===== */
+function setScrub(mins){
+  const m=Math.round(mins);
+  el('scrub').value=m;
+  el('scrubLbl').textContent=(ST.live?'現在 ':'')+PAD(Math.floor(m/60))+':'+PAD(m%60);
+}
+el('scrub').addEventListener('input',()=>{
+  const h=parseFloat(el('scrub').value)/60;ST.hour=h;ST.live=false;
+  el('scrubLbl').textContent=PAD(Math.floor(h))+':'+PAD(Math.round((h%1)*60));
+  render();
+});
+el('btnNow').addEventListener('click',()=>{ST.live=true;syncNow();});
+el('btnRefresh').addEventListener('click',()=>{render();});
+el('btnCopy').addEventListener('click',async()=>{
+  const b=el('btnCopy'),t=b.textContent;
+  try{await navigator.clipboard.writeText(window.__brief||'');b.textContent='✓ 已複製';}
+  catch(e){b.textContent='複製失敗';}
+  setTimeout(()=>b.textContent=t,1800);
+});
+
+/* ===== 主迴圈：每 20 秒；整點自動重生成 ===== */
+let lastHour=-1;
+function render(){
+  selectSeg(segIndex(ST.hour));
+  drawPreview(ST.hour);
+}
+function syncNow(){
+  const d=nowHkt(),h=hktH(d);
+  drawNow(h);
+  const ms=marketState(d.getDay(),h);
+  const chip=el('nowChip');
+  chip.className='nowchip '+(ms.st==='closed'?'closed':(ms.st==='rollover'?'roll':'open'));
+  el('nowTxt').textContent='現在香港時間 '+DAY_FULL[d.getDay()]+' '+PAD(d.getHours())+':'+PAD(d.getMinutes())+' · '+ms.label;
+  const nx=new Date(d.getTime()+(60-d.getMinutes())*60000);
+  el('nextTxt').textContent='下次自動更新：'+PAD(nx.getHours())+':00（每小時整點重生成簡報）';
+  if(ST.live){
+    ST.day=d.getDay();ST.hour=h;
+    if(d.getHours()!==lastHour){lastHour=d.getHours();syncDayBtns();}
+    setScrub(d.getHours()*60+d.getMinutes());
+    render();
+  } else {
+    setScrub(ST.hour*60);
+    drawPreview(ST.hour);
+  }
+}
+buildEventLayer();
+syncDayBtns();
+syncNow();
+renderTicker();
+/* 開檔即自動抓取一次即時數據（可在工具列手動再更新） */
+setTimeout(()=>{ fetchLive(true); },400);
+setInterval(syncNow,20000);
+window.addEventListener('resize',hideTip);
+</script>
+</body>
+</html>
