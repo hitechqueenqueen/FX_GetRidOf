@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>24小時外匯交易週期圖 · 香港時間 HKT 互動版 | FX1 三時段交易系統</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title-badge">FX1 · THE FOREX 3-SESSION TRADING SYSTEM</div>
+      <h1>24 小時外匯交易週期圖 · 香港時間（HKT / UTC+8）互動版</h1>
+      <p class="sub">依據 <b>FX1《The Forex 3-Session Trading System》</b> 三時段架構，劃分 16 個精細交易時段與外圈風險窗口；支援<b>可拖曳雙欄分隔線</b>、<b>本地 CSV 雙向即時同步</b>與<b>行內持倉盈虧／隔夜息保本價計算</b>。</p>
+    </div>
+    <div class="src">
+      基準架構：<b>FX1 三時段交易系統</b> ＋ 市場快照 <b>2026-11-14 紐約收市</b><br/>
+      時區換算：<b>標準時間 ET = UTC−5</b> ・ <b>HKT = UTC+8（ET+13）</b>
+      <div><span class="nowchip" id="nowChip"><i></i><span id="nowTxt">載入時間中…</span></span></div>
+      <div style="margin-top:4px" id="nextTxt">下次自動更新：—</div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <span class="lab">新聞圖層</span>
+    <span class="chip on" data-cat="cb" style="background:#c62828"><i style="background:#fff"></i>央行政策</span>
+    <span class="chip on" data-cat="data" style="background:#1565c0"><i style="background:#fff"></i>經濟數據</span>
+    <span class="chip on" data-cat="geo" style="background:#ef6c00"><i style="background:#fff"></i>地緣政治</span>
+    <span class="chip on" data-cat="brk" style="background:#6a1b9a"><i style="background:#fff"></i>突發風險</span>
+    <span class="lab" style="margin-left:6px">星期</span>
+    <span class="days" id="dayBtns"></span>
+    <span style="flex:1"></span>
+    <span class="scrub">預覽時段 <input type="range" id="scrub" min="0" max="1439" value="0" step="5"/><b id="scrubLbl">現在</b></span>
+    <button class="btn" id="btnNow">回到現在</button>
+    <button class="btn" id="btnCopy">複製簡報</button>
+    <button class="btn pri" id="btnRefresh">立即重新生成</button>
+  </div>
+
+  <div class="layout" id="mainLayout">
+    <!-- Left Pane: 24H Interactive Cycle Wheel -->
+    <section class="left-pane" id="leftPane">
+      <div class="card">
+        <div class="wheelwrap" id="wheelWrap">
+          <svg id="wheel" viewBox="-52 -52 904 904" role="img" aria-label="24小時外匯交易週期圖（香港時間 HKT）">
+            <defs>
+              <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0b2545" flood-opacity="0.18"/>
+              </filter>
+              <filter id="act" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#c98a1e" flood-opacity="0.55"/>
+              </filter>
+            </defs>
+            <circle cx="400" cy="400" r="394" fill="#fbfdff" stroke="#d9e2ee" stroke-width="2"/>
+
+            <!-- 16 Wedges -->
+            <g class="wedge" data-i="0" tabindex="0"><title>歐美重疊尾段 Overlap Tail｜HKT 00:00–01:00</title>
+              <path d="M400,10 A390,390 0 0 1 500.94,23.29 L478.16,108.29 A302,302 0 0 0 400,98 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="1.4"/>
+              <path d="M400,8 A392,392 0 0 1 501.46,21.36 L500.94,23.29 A390,390 0 0 0 400,10 Z" fill="#c98a1e" opacity="0.95"/>
+              <text transform="translate(440.59,91.66) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#8f620f">看：歐洲＋美國</text>
+              <text transform="translate(448.82,29.2) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">歐美重疊尾段</text>
+              <text transform="translate(446.86,44.07) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Overlap Tail</text>
+            </g>
+
+            <g class="wedge" data-i="1" tabindex="0"><title>紐約尾市 NY Late Session｜HKT 01:00–02:00</title>
+              <path d="M500.94,23.29 A390,390 0 0 1 595,62.25 L551,138.46 A302,302 0 0 0 478.16,108.29 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+              <path d="M501.46,21.36 A392,392 0 0 1 596,60.52 L595,62.25 A390,390 0 0 0 500.94,23.29 Z" fill="#d1622a" opacity="0.45"/>
+              <text transform="translate(519.01,112.67) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#9c4519">看：美國</text>
+              <text transform="translate(543.12,54.47) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">紐約尾市</text>
+              <text transform="translate(537.38,68.33) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">NY Late Session</text>
+            </g>
+
+            <g class="wedge" data-i="2" tabindex="0"><title>亞洲待市 Pre-Asia Handoff｜HKT 02:00–03:00</title>
+              <path d="M595,62.25 A390,390 0 0 1 675.77,124.23 L613.55,186.45 A302,302 0 0 0 551,138.46 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+              <path d="M596,60.52 A392,392 0 0 1 677.19,122.81 L675.77,124.23 A390,390 0 0 0 595,62.25 Z" fill="#8496ab" opacity="0.45"/>
+              <text transform="translate(589.32,153.27) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#5b6b7d">看：過渡期</text>
+              <text transform="translate(627.68,103.29) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲待市</text>
+              <text transform="translate(618.55,115.19) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Pre-Asia Handoff</text>
+            </g>
+
+            <g class="wedge" data-i="3" tabindex="0"><title>流動性靜淡 Liquidity Lull｜HKT 03:00–06:00</title>
+              <path d="M675.77,124.23 A390,390 0 0 1 790,400 L702,400 A302,302 0 0 0 613.55,186.45 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+              <path d="M677.19,122.81 A392,392 0 0 1 792,400 L790,400 A390,390 0 0 0 675.77,124.23 Z" fill="#8496ab" opacity="0.45"/>
+              <text transform="translate(687.33,280.99) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#5b6b7d">看：亞洲休市</text>
+              <text transform="translate(745.53,256.88) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">流動性靜淡</text>
+              <text transform="translate(731.67,262.62) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Liquidity Lull</text>
+            </g>
+
+            <g class="wedge" data-i="4" tabindex="0"><title>東京開市 Tokyo Open｜HKT 06:00–07:00</title>
+              <path d="M790,400 A390,390 0 0 1 776.71,500.94 L691.71,478.16 A302,302 0 0 0 702,400 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M792,400 A392,392 0 0 1 778.64,501.46 L776.71,500.94 A390,390 0 0 0 790,400 Z" fill="#2f6fb0" opacity="0.95"/>
+              <text transform="translate(708.34,440.59) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+              <text transform="translate(770.8,448.82) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">東京開市</text>
+              <text transform="translate(755.93,446.86) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Tokyo Open</text>
+            </g>
+
+            <g class="wedge" data-i="5" tabindex="0"><title>亞洲承接 Asia Takeover｜HKT 07:00–08:00</title>
+              <path d="M776.71,500.94 A390,390 0 0 1 737.75,595 L661.54,551 A302,302 0 0 0 691.71,478.16 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M778.64,501.46 A392,392 0 0 1 739.48,596 L737.75,595 A390,390 0 0 0 776.71,500.94 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text transform="translate(687.33,519.01) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+              <text transform="translate(745.53,543.12) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲承接</text>
+              <text transform="translate(731.67,537.38) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Asia Takeover</text>
+            </g>
+
+            <g class="wedge" data-i="6" tabindex="0"><title>亞洲流動性 Asian Liquidity｜HKT 08:00–10:00</title>
+              <path d="M737.75,595 A390,390 0 0 1 595,737.75 L551,661.54 A302,302 0 0 0 661.54,551 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M739.48,596 A392,392 0 0 1 596,739.48 L595,737.75 A390,390 0 0 0 737.75,595 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text transform="translate(619.91,619.91) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+              <text transform="translate(664.46,664.46) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲流動性</text>
+              <text transform="translate(653.85,653.85) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Asian Liquidity</text>
+            </g>
+
+            <g class="wedge" data-i="7" tabindex="0"><title>亞洲盤整固 Asian Range｜HKT 10:00–12:00</title>
+              <path d="M595,737.75 A390,390 0 0 1 400,790 L400,702 A302,302 0 0 0 551,661.54 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M596,739.48 A392,392 0 0 1 400,792 L400,790 A390,390 0 0 0 595,737.75 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text transform="translate(480.49,700.4) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+              <text transform="translate(496.8,761.26) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲盤整固</text>
+              <text transform="translate(492.92,746.77) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Asian Range</text>
+            </g>
+
+            <g class="wedge" data-i="8" tabindex="0"><title>亞洲午後 Asia Afternoon｜HKT 12:00–15:00</title>
+              <path d="M400,790 A390,390 0 0 1 124.23,675.77 L186.45,613.55 A302,302 0 0 0 400,702 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M400,792 A392,392 0 0 1 122.81,677.19 L124.23,675.77 A390,390 0 0 0 400,790 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text transform="translate(280.99,687.33) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#1e4f80">看：亞洲</text>
+              <text transform="translate(256.88,745.53) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞洲午後</text>
+              <text transform="translate(262.62,731.67) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Asia Afternoon</text>
+            </g>
+
+            <g class="wedge" data-i="9" tabindex="0"><title>倫敦鋪墊 Pre-London Uptick｜HKT 15:00–16:00</title>
+              <path d="M124.23,675.77 A390,390 0 0 1 62.25,595 L138.46,551 A302,302 0 0 0 186.45,613.55 Z" fill="#dcf1ef" stroke="#1f8f86" stroke-width="1.4"/>
+              <path d="M122.81,677.19 A392,392 0 0 1 60.52,596 L62.25,595 A390,390 0 0 0 124.23,675.77 Z" fill="#1f8f86" opacity="0.95"/>
+              <text transform="translate(153.27,589.32) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f59">看：亞洲→歐洲</text>
+              <text transform="translate(103.29,627.68) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦鋪墊</text>
+              <text transform="translate(115.19,618.55) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Pre-London Uptick</text>
+            </g>
+
+            <g class="wedge" data-i="10" tabindex="0"><title>亞歐重疊 Asia/Europe Overlap｜HKT 16:00–17:00</title>
+              <path d="M62.25,595 A390,390 0 0 1 23.29,500.94 L108.29,478.16 A302,302 0 0 0 138.46,551 Z" fill="#ece2fb" stroke="#7b4fd0" stroke-width="2.5"/>
+              <path d="M60.52,596 A392,392 0 0 1 21.36,501.46 L23.29,500.94 A390,390 0 0 0 62.25,595 Z" fill="#7b4fd0" opacity="0.95"/>
+              <text transform="translate(112.67,519.01) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#57349b">看：亞洲＋歐洲</text>
+              <text transform="translate(54.47,543.12) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">亞歐重疊</text>
+              <text transform="translate(68.33,537.38) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Asia/Europe Overlap</text>
+            </g>
+
+            <g class="wedge" data-i="11" tabindex="0"><title>倫敦早盤突破 London Breakout｜HKT 17:00–18:00</title>
+              <path d="M23.29,500.94 A390,390 0 0 1 10,400 L98,400 A302,302 0 0 0 108.29,478.16 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M21.36,501.46 A392,392 0 0 1 8,400 L10,400 A390,390 0 0 0 23.29,500.94 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text transform="translate(91.66,440.59) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+              <text transform="translate(29.2,448.82) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦早盤突破</text>
+              <text transform="translate(44.07,446.86) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">London Breakout</text>
+            </g>
+
+            <g class="wedge" data-i="12" tabindex="0"><title>倫敦動能 London Momentum｜HKT 18:00–20:00</title>
+              <path d="M10,400 A390,390 0 0 1 62.25,205 L138.46,249 A302,302 0 0 0 98,400 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M8,400 A392,392 0 0 1 60.52,204 L62.25,205 A390,390 0 0 0 10,400 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text transform="translate(99.6,319.51) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+              <text transform="translate(38.74,303.2) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦動能</text>
+              <text transform="translate(53.23,307.08) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">London Momentum</text>
+            </g>
+
+            <g class="wedge" data-i="13" tabindex="0"><title>倫敦轉折 London Reversal｜HKT 20:00–21:00</title>
+              <path d="M62.25,205 A390,390 0 0 1 124.23,124.23 L186.45,186.45 A302,302 0 0 0 138.46,249 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M60.52,204 A392,392 0 0 1 122.81,122.81 L124.23,124.23 A390,390 0 0 0 62.25,205 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text transform="translate(153.27,210.68) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#0f5f3d">看：歐洲</text>
+              <text transform="translate(103.29,172.32) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">倫敦轉折</text>
+              <text transform="translate(115.19,181.45) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">London Reversal</text>
+            </g>
+
+            <g class="wedge" data-i="14" tabindex="0"><title>紐約開市 NY Open｜HKT 21:00–22:00</title>
+              <path d="M124.23,124.23 A390,390 0 0 1 205,62.25 L249,138.46 A302,302 0 0 0 186.45,186.45 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+              <path d="M122.81,122.81 A392,392 0 0 1 204,60.52 L205,62.25 A390,390 0 0 0 124.23,124.23 Z" fill="#d1622a" opacity="0.95"/>
+              <text transform="translate(210.68,153.27) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#9c4519">看：美國</text>
+              <text transform="translate(172.32,103.29) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">紐約開市</text>
+              <text transform="translate(181.45,115.19) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">NY Open</text>
+            </g>
+
+            <g class="wedge" data-i="15" tabindex="0"><title>歐美重疊核心 Core EU/NA Overlap｜HKT 22:00–24:00</title>
+              <path d="M205,62.25 A390,390 0 0 1 400,10 L400,98 A302,302 0 0 0 249,138.46 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="2.5"/>
+              <path d="M204,60.52 A392,392 0 0 1 400,8 L400,10 A390,390 0 0 0 205,62.25 Z" fill="#c98a1e" opacity="0.95"/>
+              <text transform="translate(319.51,99.6) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="8.8" font-weight="700" fill="#8f620f">看：歐洲＋美國</text>
+              <text transform="translate(303.2,38.74) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="12.4" font-weight="800" fill="#12263f">歐美重疊核心</text>
+              <text transform="translate(307.08,53.23) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="7.8" font-weight="600" fill="#5b6b7d">Core EU/NA Overlap</text>
+            </g>
+
+            <!-- Inner Rings & Session Arcs -->
+            <circle cx="400" cy="400" r="300" fill="#eef4fb" stroke="#dbe4ef" stroke-width="1.2"/>
+            <circle cx="400" cy="400" r="248" fill="#f4f6f9" stroke="#dbe4ef" stroke-width="1.2"/>
+            <path d="M639.55,464.19 A248,248 0 0 1 160.45,464.19 L185.56,457.46 A222,222 0 0 0 614.44,457.46 Z" fill="#2f6fb0" opacity="0.92"/>
+            <path d="M207.74,511 A222,222 0 0 1 457.46,185.56 L450.73,210.68 A196,196 0 0 0 230.26,498 Z" fill="#1c8a5a" opacity="0.92"/>
+            <path d="M261.41,261.41 A196,196 0 0 1 596,400 L570,400 A170,170 0 0 0 279.79,279.79 Z" fill="#d1622a" opacity="0.92"/>
+
+            <!-- Hour Markers -->
+            <g font-family="'Inter','Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central" font-size="10.5" font-weight="800" fill="#12263f">
+              <text x="400" y="114">00</text><text x="474" y="124">01</text><text x="543" y="152">02</text>
+              <text x="602" y="198">03</text><text x="648" y="257">04</text><text x="676" y="326">05</text>
+              <text x="686" y="400">06</text><text x="676" y="474">07</text><text x="648" y="543">08</text>
+              <text x="602" y="602">09</text><text x="543" y="648">10</text><text x="474" y="676">11</text>
+              <text x="400" y="686">12</text><text x="326" y="676">13</text><text x="257" y="648">14</text>
+              <text x="198" y="602">15</text><text x="152" y="543">16</text><text x="124" y="474">17</text>
+              <text x="114" y="400">18</text><text x="124" y="326">19</text><text x="152" y="257">20</text>
+              <text x="198" y="198">21</text><text x="257" y="152">22</text><text x="326" y="124">23</text>
+            </g>
+
+            <!-- Center Hub -->
+            <circle cx="400" cy="400" r="116" fill="#102941" stroke="#0a1c2e" stroke-width="2" filter="url(#soft)"/>
+            <text x="400" y="346" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8fb6d8" letter-spacing="2.2">24-HOUR</text>
+            <text x="400" y="376" text-anchor="middle" font-size="24" font-weight="800" fill="#ffffff">外匯交易週期</text>
+            <text x="400" y="397" text-anchor="middle" font-size="9.5" font-weight="700" fill="#8fb6d8" letter-spacing="1.5">FOREX TRADING CYCLE</text>
+            <line x1="338" y1="410" x2="462" y2="410" stroke="#3d6c96" stroke-width="1"/>
+            <text x="400" y="431" text-anchor="middle" font-size="12" font-weight="800" fill="#f2c14e">香港時間 HKT (UTC+8)</text>
+            <text x="400" y="450" text-anchor="middle" font-size="8.8" fill="#a8c4de">週一 06:00 至週六 06:00</text>
+            <text x="400" y="472" text-anchor="middle" font-size="15" font-weight="800" fill="#ffffff">≈38% 倫敦成交量</text>
+
+            <g id="activeSeg" opacity="0"></g>
+            <circle cx="400" cy="400" r="404" fill="none" stroke="#dde5ef" stroke-width="8" stroke-dasharray="1 7" opacity="0.9"/>
+            <g id="eventLayer"></g>
+            <g id="nowMarker"></g>
+            <g id="previewMarker"></g>
+          </svg>
+          <div id="tip"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2f6fb0"></i>亞洲 07–17</span>
+          <span><i style="background:#1c8a5a"></i>歐洲 16–01</span>
+          <span><i style="background:#d1622a"></i>北美 21–06</span>
+          <span><i style="background:#7b4fd0"></i>亞歐重疊</span>
+          <span><i style="background:#c98a1e"></i>歐美重疊</span>
+          <span><i style="background:#e03a3a"></i>現在</span>
+          <span><i style="background:#f2c14e"></i>預覽</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Draggable Split Resizer -->
+    <div class="split-resizer" id="splitResizer" title="左右拖曳調整圓盤與數據面板比例"></div>
+
+    <!-- Right Pane: Scrollable Portfolio, Session Details & AI Briefing -->
+    <aside class="right-pane" id="rightScroll">
+
+      <!-- Inline Portfolio & Two-Way CSV Manager -->
+      <section class="card" style="margin-bottom:14px">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#157a4e;display:inline-block"></span>持倉組合與雙向 CSV 資料庫（行內即時編輯）</h2>
+        <p class="hint">修改任意欄位或新增倉位時，自動計算<b>含隔夜息保本價（Swap-Adjusted BE）</b>並即時寫入本地 CSV 檔案。</p>
+
+        <div class="csv-bar">
+          <div class="csv-status">
+            <span class="csv-dot" id="csvStatusDot"></span>
+            <span id="csvStatusTxt">未綁定本地檔案（目前使用瀏覽器暫存，請點擊右側綁定 CSV）</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button type="button" class="btn sm pri" id="btnBindCsv">綁定本地 CSV</button>
+            <button type="button" class="btn sm" id="btnNewCsv">新建並綁定 CSV</button>
+            <button type="button" class="btn sm" id="btnExportCsv">下載 CSV 備份</button>
+            <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none"/>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="pf-table">
+            <thead>
+              <tr>
+                <th>貨幣對</th>
+                <th>方向</th>
+                <th>手數</th>
+                <th>開倉價 Entry</th>
+                <th>現價 Current</th>
+                <th>隔夜息 Swap</th>
+                <th>保本價 BE</th>
+                <th>淨盈虧 (USD)</th>
+                <th>備註</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="pfTbody"></tbody>
+            <tfoot>
+              <tr id="pfAddRow" class="pf-add-row">
+                <td><input type="text" data-new="pair" placeholder="GBPCHF" style="text-transform:uppercase;width:72px"/></td>
+                <td>
+                  <select data-new="side" style="width:66px">
+                    <option value="BUY">BUY</option>
+                    <option value="SELL">SELL</option>
+                  </select>
+                </td>
+                <td><input type="number" step="0.01" min="0.01" data-new="lots" value="0.10" style="width:62px"/></td>
+                <td><input type="number" step="0.00001" data-new="entry" placeholder="必填開倉價" style="width:86px"/></td>
+                <td><input type="number" step="0.00001" data-new="current" placeholder="現價" style="width:86px"/></td>
+                <td><input type="number" step="0.01" data-new="swap" value="0" style="width:68px"/></td>
+                <td class="num" style="color:#8d9eb2">自動計算</td>
+                <td class="num" style="color:#8d9eb2">自動計算</td>
+                <td><input type="text" data-new="notes" placeholder="策略備註" style="width:95px"/></td>
+                <td><button type="button" class="btn sm ok" id="btnAddPfRow">＋ 新增</button></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- Session Readout -->
+      <section class="card" style="margin-bottom:14px">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>時段詳情</h2>
+        <div class="readout">
+          <div class="rt-top">
+            <span class="rt-zh" id="roZh">—</span>
+            <span class="rt-en" id="roEn"></span>
+            <span class="rt-badge" id="roBadge">—</span>
+          </div>
+          <div class="rt-time">
+            <div>星期<b id="roDay">—</b></div>
+            <div>香港時間<b id="roHkt">—</b></div>
+            <div>UTC<b id="roUtc">—</b></div>
+            <div>美東 ET<b id="roEt">—</b></div>
+          </div>
+          <p class="rt-line"><span class="lbl">市場狀態</span><b id="roState">—</b></p>
+          <p class="rt-line"><span class="lbl">應該看的時區表現</span><b id="roWatch">—</b></p>
+          <p class="rt-line"><span class="lbl">本時段操作建議</span><span id="roStrat">—</span></p>
+          <p class="rt-line"><span class="lbl">主要受影響貨幣對</span><b id="roPairs">—</b></p>
+          <div class="pillset" id="roPills"></div>
+        </div>
+      </section>
+
+      <!-- AI Briefing -->
+      <div class="ai" id="aiPanel">
+        <div class="ai-head">
+          <span class="tag">AI 市場簡報</span>
+          <h3 id="aiTitle">—</h3>
+          <span class="ai-status st-open" id="aiStatus">—</span>
+          <div class="rt" id="aiStamp">—</div>
+        </div>
+        <div class="ai-body">
+          <div class="ai-day" id="aiDay">
+            <div class="ai-day-top">
+              <div class="dh">—</div>
+              <div class="dt">—</div>
+            </div>
+            <p id="aiDayTxt">—</p>
+          </div>
+          <div class="ai-grid" style="margin-top:10px">
+            <div class="ai-box" id="bxNow"><div class="h"><em>📈</em>外匯市場現況</div><p id="aiNow">—</p></div>
+            <div class="ai-box" id="bxGeo"><div class="h"><em>🌍</em>地緣政治 · 外交風波</div><p id="aiGeo">—</p></div>
+            <div class="ai-box" id="bxCb"><div class="h"><em>🏦</em>央行政策</div><p id="aiCb">—</p></div>
+            <div class="ai-box" id="bxData"><div class="h"><em>📊</em>數據公布 · 突發事件</div><p id="aiData">—</p></div>
+          </div>
+          <div class="ai-act" id="aiAct"><b>本時段操作重點 ▸</b> —</div>
+          <div class="ai-up" id="aiUp"><b>接下來 24 小時 ▸</b> —</div>
+        </div>
+      </div>
+
+      <!-- Master Schedule Table -->
+      <section class="card">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>分析數據：每個香港時段 應看哪個時區的外匯表現</h2>
+        <p class="hint">點擊任一列可即時切換左側圓盤並跳回頂部檢視。</p>
+        <div class="table-wrap">
+          <table id="masterTable">
+            <thead><tr><th>香港時間</th><th>UTC</th><th>美東 ET</th><th>應看的時區</th><th>市場性格</th><th>操作建議</th><th>級別</th></tr></thead>
+            <tbody>
+              <tr data-seg="0"><td class="num"><b>00:00–01:00</b></td><td class="num">16:00–17:00</td><td class="num">11:00–12:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲＋美國</td><td>獲利回吐</td><td>不開新倉，只做倉位管理；預備 07:00 東京開盤突破單。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="1"><td class="num"><b>01:00–02:00</b></td><td class="num">17:00–18:00</td><td class="num">12:00–13:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>波動遞減</td><td>僅管理倉位；用掛單等待亞洲開盤方向確認。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="2"><td class="num"><b>02:00–03:00</b></td><td class="num">18:00–19:00</td><td class="num">13:00–14:00</td><td><span class="sdot" style="background:#8496ab"></span>過渡期</td><td>交接真空</td><td>不交易；用掛單等待亞洲開盤方向確認。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="3"><td class="num"><b>03:00–06:00</b></td><td class="num">19:00–22:00</td><td class="num">14:00–17:00</td><td><span class="sdot" style="background:#8496ab"></span>紐約尾盤至換日</td><td>低流動性</td><td>波段長線建倉窗口（避開 05:00–06:00 換日點差）。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="4"><td class="num"><b>06:00–07:00</b></td><td class="num">22:00–23:00</td><td class="num">17:00–18:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（前哨）</td><td>跳空突破</td><td>順勢追突破先等 15 分鐘確認；日圓干預風險高。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="5"><td class="num"><b>07:00–08:00</b></td><td class="num">23:00–00:00</td><td class="num">18:00–19:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>承接方向</td><td>以亞洲承接方向做短線；AUD/JPY 最活躍。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="6"><td class="num"><b>08:00–10:00</b></td><td class="num">00:00–02:00</td><td class="num">19:00–21:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>趨勢初成</td><td>等待突破亞洲早盤區間，量能確認後順勢持有。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="7"><td class="num"><b>10:00–12:00</b></td><td class="num">02:00–04:00</td><td class="num">21:00–23:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>區間整理</td><td>支撐阻力高拋低吸，止損放區間外；不追突破單。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="8"><td class="num"><b>12:00–15:00</b></td><td class="num">04:00–07:00</td><td class="num">23:00–02:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（歐盤前）</td><td>數據預期</td><td>歐盤前收縮過度槓桿；先佈局突破掛單。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="9"><td class="num"><b>15:00–16:00</b></td><td class="num">07:00–08:00</td><td class="num">02:00–03:00</td><td><span class="sdot" style="background:#1f8f86"></span>亞洲 轉 歐洲</td><td>波幅擴大</td><td>先掛突破單等波幅擴大；留意 EUR/USD 1.1000。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="10"><td class="num"><b>16:00–17:00</b></td><td class="num">08:00–09:00</td><td class="num">03:00–04:00</td><td><span class="sdot" style="background:#7b4fd0"></span>亞洲＋歐洲</td><td>交叉盤活躍</td><td>用倫敦開市首根 5 分鐘 K 線確認方向順勢入場。</td><td class="lvl">★★★</td></tr>
+              <tr data-seg="11"><td class="num"><b>17:00–18:00</b></td><td class="num">09:00–10:00</td><td class="num">04:00–05:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>日內突破</td><td>順勢突破為主，配合 5 分鐘收線確認。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="12"><td class="num"><b>18:00–20:00</b></td><td class="num">10:00–12:00</td><td class="num">05:00–07:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>順勢動能</td><td>順勢突破＋回調進場的黃金窗。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="13"><td class="num"><b>20:00–21:00</b></td><td class="num">12:00–13:00</td><td class="num">07:00–08:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>高位反轉</td><td>順勢倉位適度減半；等假突破反轉訊號。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="14"><td class="num"><b>21:00–22:00</b></td><td class="num">13:00–14:00</td><td class="num">08:00–09:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>美元定價</td><td>數據前降槓桿；數據後等 15 分鐘收線確認。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="15"><td class="num"><b>22:00–24:00</b></td><td class="num">14:00–16:00</td><td class="num">09:00–11:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲＋美國</td><td>最高量</td><td>全日唯一重倉窗口：區間突破後假突破策略或順勢單。</td><td class="lvl">★★★</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    <b>使用提示</b>：雙擊 <code>start_dashboard.bat</code>（透過 <code>http://localhost:8080</code> 開啟）即可解鎖 Chrome / Edge 的本地 CSV 檔案雙向即時自動儲存功能。
+  </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
