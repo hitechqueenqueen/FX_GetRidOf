@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>24小時外匯交易週期圖 · 香港時間 HKT 互動版 | FX1   三時段交易系統</title>
+  <style>
+    :root {
+      --bg1: #eef3f9;
+      --bg2: #f8fafc;
+      --card: #ffffff;
+      --line: #e2e9f2;
+      --line2: #cfdbe8;
+      --ink: #0f233c;
+      --ink2: #35475c;
+      --ink3: #63758a;
+      --muted: #8d9eb2;
+      --shadow: 0 1px 2px rgba(15,35,60,.04), 0 10px 28px rgba(15,35,60,.06);
+      --shadow-lg: 0 12px 32px rgba(15,35,60,.12);
+      --left-width: 52%;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; scroll-behavior: smooth; }
+    body {
+      background: linear-gradient(155deg, var(--bg1) 0%, #e7eff8 42%, var(--bg2) 100%);
+      color: var(--ink);
+      font-family: "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", "Hiragino Sans GB", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 1860px; margin: 0 auto; padding: 18px 22px 48px; }
+
+    /* Header */
+    header {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+      gap: 16px; margin-bottom: 14px;
+    }
+    .title-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10.5px; font-weight: 800; letter-spacing: .8px;
+      color: #1e4f80; background: #dfeaf7; border: 1px solid #c5daf2;
+      padding: 3px 10px; border-radius: 999px; margin-bottom: 7px;
+    }
+    h1 { margin: 0; font-size: 24px; letter-spacing: .2px; font-weight: 800; color: var(--ink); }
+    .sub { margin: 6px 0 0; color: var(--ink3); font-size: 12px; line-height: 1.65; max-width: 900px; }
+    .sub b { color: var(--ink2); }
+    .src { font-size: 11px; color: var(--ink3); text-align: right; line-height: 1.7; }
+    .src b { color: var(--ink); }
+
+    .nowchip {
+      display: inline-flex; align-items: center; gap: 7px; background: #fff;
+      border: 1px solid #f0c9c9; color: #c0392b; border-radius: 999px;
+      padding: 5px 13px; font-size: 11.6px; font-weight: 800; margin-top: 6px;
+      box-shadow: 0 2px 8px rgba(15,35,60,.05);
+    }
+    .nowchip i { width: 8px; height: 8px; border-radius: 50%; background: #e03a3a; display: inline-block; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .3; transform: scale(.85); } }
+    .nowchip.open { border-color: #b6dec8; color: #157a4e; background: #f4fbf7; }
+    .nowchip.open i { background: #1c8a5a; }
+    .nowchip.closed { border-color: #d4dce6; color: #516275; background: #f4f7fa; }
+    .nowchip.closed i { background: #8496ab; animation: none; }
+    .nowchip.roll { border-color: #ebd09e; color: #8f620f; background: #fffaf0; }
+    .nowchip.roll i { background: #c98a1e; }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(8px);
+      border: 1px solid var(--line); border-radius: 15px; padding: 10px 14px;
+      margin-bottom: 14px; box-shadow: var(--shadow);
+    }
+    .toolbar .lab { font-size: 10.6px; font-weight: 800; color: var(--muted); letter-spacing: .5px; }
+    .chip {
+      display: inline-flex; align-items: center; gap: 6px; font-size: 11.2px; font-weight: 700;
+      border: 1px solid var(--line); background: #f7fafd; color: var(--ink2);
+      border-radius: 999px; padding: 4px 11px; cursor: pointer; user-select: none; transition: .16s ease;
+    }
+    .chip:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(15,35,60,.08); }
+    .chip.on { color: #fff; border-color: transparent; }
+    .chip i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .chip.off { opacity: .4; text-decoration: line-through; }
+
+    .days { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: #f7fafd; }
+    .days button {
+      border: 0; background: transparent; font: inherit; font-size: 11.2px; font-weight: 700;
+      color: var(--ink2); padding: 4px 10px; cursor: pointer; min-width: 32px; transition: .15s;
+    }
+    .days button:hover { background: #e8f0f8; }
+    .days button.on { background: #12263f; color: #fff; }
+    .days button.off { color: #9fb0c2; }
+
+    .btn {
+      font: inherit; font-size: 11.2px; font-weight: 700; border: 1px solid var(--line2);
+      background: #fff; color: var(--ink2); border-radius: 9px; padding: 5px 12px; cursor: pointer; transition: .15s;
+    }
+    .btn:hover { background: #f2f7fc; border-color: #9fb4cb; }
+    .btn:active { transform: translateY(1px); }
+    .btn.pri { background: #12263f; color: #fff; border-color: #12263f; }
+    .btn.pri:hover { background: #1e3f66; }
+    .btn.ok { background: #157a4e; color: #fff; border-color: #157a4e; }
+    .btn.ok:hover { background: #11633f; }
+    .btn.sm { padding: 3px 8px; font-size: 10.6px; border-radius: 6px; }
+    .btn.danger { color: #c0392b; border-color: #f0c9c9; background: #fff8f8; }
+    .btn.danger:hover { background: #fdeaea; }
+
+    input[type=range] { accent-color: #c98a1e; width: 150px; cursor: pointer; }
+    .scrub { display: flex; align-items: center; gap: 7px; font-size: 11.2px; color: var(--ink2); font-weight: 700; }
+    .scrub b { font-family: "Inter", "Segoe UI", sans-serif; color: #12263f; font-size: 12.2px; min-width: 68px; }
+
+    /* Main Resizable Flex Split Layout */
+    .layout {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      width: 100%;
+      position: relative;
+    }
+
+    .left-pane {
+      flex: 0 0 var(--left-width);
+      width: var(--left-width);
+      min-width: 340px;
+      max-width: 85%;
+      position: sticky;
+      top: 14px;
+    }
+
+    .left-pane .card {
+      padding: 10px 12px;
+    }
+
+    /* Draggable Split Resizer */
+    .split-resizer {
+      flex: 0 0 14px;
+      width: 14px;
+      height: calc(100vh - 28px);
+      position: sticky;
+      top: 14px;
+      z-index: 60;
+      cursor: col-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      touch-action: none;
+    }
+    .split-resizer::before {
+      content: "";
+      width: 4px;
+      height: 64px;
+      border-radius: 99px;
+      background: #c5d4e6;
+      transition: background .15s, height .15s, width .15s;
+    }
+    .split-resizer:hover::before,
+    .split-resizer.dragging::before {
+      background: #2f6fb0;
+      height: 96px;
+      width: 5px;
+    }
+
+    aside.right-pane {
+      flex: 1 1 auto;
+      min-width: 360px;
+      position: sticky;
+      top: 14px;
+      max-height: calc(100vh - 28px);
+      overflow-y: auto;
+      padding-right: 6px;
+      scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: #a5b8ce #e8eef5;
+    }
+    aside.right-pane::-webkit-scrollbar { width: 8px; }
+    aside.right-pane::-webkit-scrollbar-track { background: #e8eef5; border-radius: 10px; }
+    aside.right-pane::-webkit-scrollbar-thumb { background: #a5b8ce; border-radius: 10px; border: 2px solid #e8eef5; }
+    aside.right-pane::-webkit-scrollbar-thumb:hover { background: #7e97b4; }
+
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 15px 17px; }
+    .card h2 { margin: 0 0 5px; font-size: 14.5px; font-weight: 800; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--ink); }
+    .card .hint { margin: 0 0 10px; font-size: 11px; color: var(--ink3); line-height: 1.6; }
+
+    /* Wheel & Enlarged Wheel Typography */
+    .wheelwrap { position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+    #wheel { display: block; width: 100%; height: auto; max-width: none; max-height: calc(100vh - 96px); margin: 0 auto; user-select: none; }
+    .wedge { transition: opacity .15s ease; outline: none; }
+    .wedge:focus-visible { opacity: .75; }
+
+    /* Larger readable fonts inside the wheel */
+    #wheel .w-zh { font-size: 15.2px !important; font-weight: 800 !important; letter-spacing: .3px; }
+    #wheel .w-en { font-size: 9.4px !important; font-weight: 700 !important; }
+    #wheel .w-tz { font-size: 10.6px !important; font-weight: 800 !important; }
+    #wheel .w-hr { font-size: 12.6px !important; font-weight: 800 !important; }
+    #wheel .hub-title { font-size: 27px !important; }
+    #wheel .hub-sub { font-size: 14px !important; }
+    #wheel .hub-stat { font-size: 17px !important; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-top: 6px; }
+    .legend span {
+      display: inline-flex; align-items: center; gap: 5px; font-size: 10.8px; font-weight: 700;
+      color: var(--ink2); background: #f5f9fd; border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px;
+    }
+    .legend i { width: 8px; height: 8px; border-radius: 3px; display: inline-block; }
+
+    #tip {
+      position: absolute; pointer-events: none; background: rgba(16,38,63,.96); backdrop-filter: blur(6px);
+      color: #fff; font-size: 11.6px; line-height: 1.6; padding: 9px 12px; border-radius: 10px;
+      max-width: 320px; opacity: 0; transition: opacity .12s; z-index: 80;
+      box-shadow: 0 10px 26px rgba(10,25,45,.32); border: 1px solid rgba(255,255,255,.12);
+    }
+    #tip b { color: #f4c756; }
+
+    /* CSV & Portfolio Manager Bar */
+    .csv-bar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px;
+      background: #f4f8fd; border: 1px solid #cfe0f2; border-radius: 11px; padding: 8px 12px; margin-bottom: 12px;
+    }
+    .csv-status { font-size: 11px; font-weight: 700; color: #1e4f80; display: flex; align-items: center; gap: 6px; }
+    .csv-dot { width: 8px; height: 8px; border-radius: 50%; background: #8d9eb2; display: inline-block; }
+    .csv-dot.linked { background: #1c8a5a; box-shadow: 0 0 0 3px rgba(28,138,90,.18); }
+
+    /* Inline Portfolio Table Inputs */
+    .pf-table input, .pf-table select {
+      width: 100%; min-width: 58px; padding: 4px 6px; font-size: 11.2px; font-family: inherit;
+      border: 1px solid #c5d4e6; border-radius: 6px; background: #fff; color: var(--ink);
+    }
+    .pf-table input:focus, .pf-table select:focus { outline: none; border-color: #2f6fb0; box-shadow: 0 0 0 2px rgba(47,111,176,.15); }
+    .pf-add-row { background: #f4f9ff !important; }
+    .pnl-pos { color: #157a4e; font-weight: 800; }
+    .pnl-neg { color: #c0392b; font-weight: 800; }
+
+    /* Custom Notification Banner */
+    .toast-msg {
+      display: none;
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 9px;
+      background: #fdeaea;
+      border: 1px solid #f0c9c9;
+      color: #c0392b;
+      font-size: 11.4px;
+      font-weight: 700;
+    }
+    .toast-msg.show { display: block; }
+
+    /* Readout Box */
+    .readout {
+      border-radius: 13px; border: 1px solid var(--line);
+      background: linear-gradient(160deg, #fbfdff, #f2f7fc); padding: 13px 15px;
+    }
+    .readout .rt-top { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+    .readout .rt-zh { font-size: 18.5px; font-weight: 800; color: var(--ink); }
+    .readout .rt-en { font-size: 11px; color: var(--ink3); font-weight: 700; }
+    .readout .rt-badge { margin-left: auto; font-size: 10.4px; font-weight: 800; color: #fff; border-radius: 999px; padding: 3px 10px; }
+    .rt-time {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+      margin: 9px 0 10px; padding: 8px 0; border-top: 1px dashed var(--line2); border-bottom: 1px dashed var(--line2);
+    }
+    .rt-time div { font-size: 10.2px; color: var(--ink3); }
+    .rt-time b { display: block; font-size: 12.8px; color: var(--ink); font-weight: 800; font-family: "Inter", "Segoe UI", sans-serif; margin-top: 2px; }
+    .rt-line { font-size: 11.8px; line-height: 1.68; color: var(--ink2); margin: 6px 0; }
+    .rt-line b { color: var(--ink); }
+    .rt-line .lbl { color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .6px; display: block; margin-bottom: 1px; }
+    .pillset { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 9px; }
+    .pill { font-size: 10.3px; font-weight: 700; border-radius: 999px; padding: 3px 9px; border: 1px solid var(--line); background: #fff; color: var(--ink2); }
+    .pill.on { background: #e6f6ed; border-color: #b8dec9; color: #14664a; }
+    .pill.off { background: #f1f4f8; color: #6b7c90; }
+    .pill.warn { background: #fff3e2; border-color: #f0d3a8; color: #8f620f; }
+
+    /* AI Briefing Panel */
+    .ai {
+      border-radius: 16px; border: 1px solid #d5e2f0;
+      background: linear-gradient(165deg, #fbfdff 0%, #eef4fb 100%);
+      overflow: hidden; margin-bottom: 14px; box-shadow: var(--shadow);
+    }
+    .ai-head {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 9px; padding: 12px 15px;
+      background: linear-gradient(105deg, #0f233c, #1d456b); color: #fff;
+    }
+    .ai-head .tag {
+      font-size: 9.8px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+      border-radius: 999px; padding: 3px 9px; font-weight: 800; letter-spacing: .6px;
+    }
+    .ai-head h3 { margin: 0; font-size: 14.5px; font-weight: 800; }
+    .ai-head .rt { font-size: 10.2px; color: #b2cde6; font-weight: 600; margin-left: auto; text-align: right; line-height: 1.4; }
+    .ai-status { font-size: 10.2px; font-weight: 800; border-radius: 999px; padding: 3px 10px; }
+    .st-open { background: #1c8a5a; color: #fff; } .st-closed { background: #5b6b7d; color: #fff; } .st-roll { background: #c98a1e; color: #fff; }
+    .ai-body { padding: 14px 15px; }
+    .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 10px; }
+    .ai-box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; }
+    .ai-box .h { display: flex; align-items: center; gap: 6px; font-size: 11.3px; font-weight: 800; color: var(--ink); margin-bottom: 4px; }
+    .ai-box p { margin: 0; font-size: 11.5px; line-height: 1.7; color: var(--ink2); }
+    .ai-box.closed { background: #f7f9fc; border-style: dashed; }
+    .ai-act {
+      margin-top: 10px; border-radius: 11px; border: 1px solid #eedaa8;
+      background: #fffaf0; padding: 10px 12px; font-size: 11.6px; line-height: 1.68; color: #543e12;
+    }
+    .ai-act b { color: #8f620f; }
+    .ai-up {
+      margin-top: 9px; font-size: 11.2px; color: var(--ink2); line-height: 1.68;
+      background: #f5f9fd; border: 1px dashed var(--line2); border-radius: 10px; padding: 9px 11px;
+    }
+    .ai-day {
+      border-radius: 11px; border-left: 4px solid #2f6fb0; background: #ebf3fc;
+      padding: 10px 12px; font-size: 11.6px; line-height: 1.68; color: #223c59;
+    }
+    .ai-day p { margin: 4px 0 0; }
+    .ai-day-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .ai-day .dh { font-weight: 800; font-size: 12.2px; color: #0f233c; }
+    .ai-day .dt { font-size: 10.2px; font-weight: 800; color: #fff; background: #2f6fb0; border-radius: 999px; padding: 2px 9px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 11.4px; }
+    th, td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; line-height: 1.5; }
+    th { font-size: 10px; color: var(--ink3); font-weight: 800; letter-spacing: .4px; background: #f5f9fd; }
+    tbody tr:hover { background: #f9fcff; }
+    td b { color: var(--ink); }
+    .num { font-family: "Inter", "Segoe UI", sans-serif; font-weight: 700; white-space: nowrap; }
+    .sdot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: 1px; }
+    .lvl { color: #c98a1e; white-space: nowrap; letter-spacing: 1px; font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    .row-active { background: #eaf3fd !important; }
+
+    footer { margin-top: 20px; font-size: 10.8px; color: var(--ink3); line-height: 1.8; border-top: 1px solid var(--line2); padding-top: 14px; }
+    footer b { color: var(--ink); }
+
+    @media (max-width: 1100px) {
+      .layout { flex-direction: column; }
+      .left-pane, aside.right-pane { position: static; width: 100% !important; flex: none !important; max-width: 100%; max-height: none; overflow: visible; }
+      .split-resizer { display: none; }
+      .src { text-align: left; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title-badge">FX1 · THE FOREX 3-SESSION TRADING SYSTEM</div>
+      <h1>24 小時外匯交易週期圖 · 香港時間（HKT / UTC+8）互動版</h1>
+      <p class="sub">依據 <b>FX1《The Forex 3-Session Trading System》</b> 三時段架構，劃分 16 個精細交易時段與外圈風險窗口；支援<b>可拖曳雙欄分隔線</b>、<b>本地 CSV 雙向即時同步</b>與<b>行內持倉盈虧／隔夜息保本價計算</b>。</p>
+    </div>
+    <div class="src">
+      基準架構：<b>FX1 三時段交易系統</b> ＋ 市場快照 <b>2026-11-14 紐約收市</b><br/>
+      時區換算：<b>標準時間 ET = UTC−5</b> ・ <b>HKT = UTC+8（ET+13）</b>
+      <div><span class="nowchip" id="nowChip"><i></i><span id="nowTxt">載入時間中…</span></span></div>
+      <div style="margin-top:4px" id="nextTxt">下次自動更新：—</div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <span class="lab">新聞圖層</span>
+    <span class="chip on" data-cat="cb" style="background:#c62828"><i style="background:#fff"></i>央行政策</span>
+    <span class="chip on" data-cat="data" style="background:#1565c0"><i style="background:#fff"></i>經濟數據</span>
+    <span class="chip on" data-cat="geo" style="background:#ef6c00"><i style="background:#fff"></i>地緣政治</span>
+    <span class="chip on" data-cat="brk" style="background:#6a1b9a"><i style="background:#fff"></i>突發風險</span>
+    <span class="lab" style="margin-left:6px">星期</span>
+    <span class="days" id="dayBtns"></span>
+    <span style="flex:1"></span>
+    <span class="scrub">預覽時段 <input type="range" id="scrub" min="0" max="1439" value="0" step="5"/><b id="scrubLbl">現在</b></span>
+    <button class="btn" id="btnNow">回到現在</button>
+    <button class="btn" id="btnCopy">複製簡報</button>
+    <button class="btn pri" id="btnRefresh">立即重新生成</button>
+  </div>
+
+  <div class="layout" id="mainLayout">
+    <!-- Left Pane: 24H Interactive Cycle Wheel -->
+    <section class="left-pane" id="leftPane">
+      <div class="card">
+        <div class="wheelwrap" id="wheelWrap">
+          <svg id="wheel" viewBox="-52 -52 904 904" role="img" aria-label="24小時外匯交易週期圖（香港時間 HKT）">
+            <defs>
+              <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="#0b2545" flood-opacity="0.18"/>
+              </filter>
+              <filter id="act" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#c98a1e" flood-opacity="0.55"/>
+              </filter>
+            </defs>
+            <circle cx="400" cy="400" r="394" fill="#fbfdff" stroke="#d9e2ee" stroke-width="2"/>
+
+            <!-- 16 Wedges -->
+            <g class="wedge" data-i="0" tabindex="0"><title>歐美重疊尾段 Overlap Tail｜HKT 00:00–01:00</title>
+              <path d="M400,10 A390,390 0 0 1 500.94,23.29 L478.16,108.29 A302,302 0 0 0 400,98 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="1.4"/>
+              <path d="M400,8 A392,392 0 0 1 501.46,21.36 L500.94,23.29 A390,390 0 0 0 400,10 Z" fill="#c98a1e" opacity="0.95"/>
+              <text class="w-tz" transform="translate(440.59,91.66) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#8f620f">看：歐洲＋美國</text>
+              <text class="w-zh" transform="translate(448.82,29.2) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">歐美重疊尾段</text>
+              <text class="w-en" transform="translate(446.86,46.07) rotate(7.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Overlap Tail</text>
+            </g>
+
+            <g class="wedge" data-i="1" tabindex="0"><title>紐約尾市 NY Late Session｜HKT 01:00–02:00</title>
+              <path d="M500.94,23.29 A390,390 0 0 1 595,62.25 L551,138.46 A302,302 0 0 0 478.16,108.29 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+              <path d="M501.46,21.36 A392,392 0 0 1 596,60.52 L595,62.25 A390,390 0 0 0 500.94,23.29 Z" fill="#d1622a" opacity="0.45"/>
+              <text class="w-tz" transform="translate(519.01,112.67) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#9c4519">看：美國</text>
+              <text class="w-zh" transform="translate(543.12,54.47) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">紐約尾市</text>
+              <text class="w-en" transform="translate(536.6,70.1) rotate(22.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">NY Late Session</text>
+            </g>
+
+            <g class="wedge" data-i="2" tabindex="0"><title>亞洲待市 Pre-Asia Handoff｜HKT 02:00–03:00</title>
+              <path d="M595,62.25 A390,390 0 0 1 675.77,124.23 L613.55,186.45 A302,302 0 0 0 551,138.46 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+              <path d="M596,60.52 A392,392 0 0 1 677.19,122.81 L675.77,124.23 A390,390 0 0 0 595,62.25 Z" fill="#8496ab" opacity="0.45"/>
+              <text class="w-tz" transform="translate(589.32,153.27) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#5b6b7d">看：過渡期</text>
+              <text class="w-zh" transform="translate(627.68,103.29) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞洲待市</text>
+              <text class="w-en" transform="translate(617.3,116.8) rotate(37.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Pre-Asia Handoff</text>
+            </g>
+
+            <g class="wedge" data-i="3" tabindex="0"><title>流動性靜淡 Liquidity Lull｜HKT 03:00–06:00</title>
+              <path d="M675.77,124.23 A390,390 0 0 1 790,400 L702,400 A302,302 0 0 0 613.55,186.45 Z" fill="#e9eef4" stroke="#8496ab" stroke-width="1.4"/>
+              <path d="M677.19,122.81 A392,392 0 0 1 792,400 L790,400 A390,390 0 0 0 675.77,124.23 Z" fill="#8496ab" opacity="0.45"/>
+              <text class="w-tz" transform="translate(687.33,280.99) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#5b6b7d">看：亞洲休市</text>
+              <text class="w-zh" transform="translate(745.53,256.88) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">流動性靜淡</text>
+              <text class="w-en" transform="translate(729.8,263.4) rotate(67.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Liquidity Lull</text>
+            </g>
+
+            <g class="wedge" data-i="4" tabindex="0"><title>東京開市 Tokyo Open｜HKT 06:00–07:00</title>
+              <path d="M790,400 A390,390 0 0 1 776.71,500.94 L691.71,478.16 A302,302 0 0 0 702,400 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M792,400 A392,392 0 0 1 778.64,501.46 L776.71,500.94 A390,390 0 0 0 790,400 Z" fill="#2f6fb0" opacity="0.95"/>
+              <text class="w-tz" transform="translate(708.34,440.59) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#1e4f80">看：亞洲</text>
+              <text class="w-zh" transform="translate(770.8,448.82) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">東京開市</text>
+              <text class="w-en" transform="translate(753.9,446.6) rotate(277.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Tokyo Open</text>
+            </g>
+
+            <g class="wedge" data-i="5" tabindex="0"><title>亞洲承接 Asia Takeover｜HKT 07:00–08:00</title>
+              <path d="M776.71,500.94 A390,390 0 0 1 737.75,595 L661.54,551 A302,302 0 0 0 691.71,478.16 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M778.64,501.46 A392,392 0 0 1 739.48,596 L737.75,595 A390,390 0 0 0 776.71,500.94 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text class="w-tz" transform="translate(687.33,519.01) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#1e4f80">看：亞洲</text>
+              <text class="w-zh" transform="translate(745.53,543.12) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞洲承接</text>
+              <text class="w-en" transform="translate(729.8,536.6) rotate(292.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Asia Takeover</text>
+            </g>
+
+            <g class="wedge" data-i="6" tabindex="0"><title>亞洲流動性 Asian Liquidity｜HKT 08:00–10:00</title>
+              <path d="M737.75,595 A390,390 0 0 1 595,737.75 L551,661.54 A302,302 0 0 0 661.54,551 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M739.48,596 A392,392 0 0 1 596,739.48 L595,737.75 A390,390 0 0 0 737.75,595 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text class="w-tz" transform="translate(619.91,619.91) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#1e4f80">看：亞洲</text>
+              <text class="w-zh" transform="translate(664.46,664.46) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞洲流動性</text>
+              <text class="w-en" transform="translate(652.4,652.4) rotate(315)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Asian Liquidity</text>
+            </g>
+
+            <g class="wedge" data-i="7" tabindex="0"><title>亞洲盤整固 Asian Range｜HKT 10:00–12:00</title>
+              <path d="M595,737.75 A390,390 0 0 1 400,790 L400,702 A302,302 0 0 0 551,661.54 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M596,739.48 A392,392 0 0 1 400,792 L400,790 A390,390 0 0 0 595,737.75 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text class="w-tz" transform="translate(480.49,700.4) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#1e4f80">看：亞洲</text>
+              <text class="w-zh" transform="translate(496.8,761.26) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞洲盤整固</text>
+              <text class="w-en" transform="translate(492.4,744.8) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Asian Range</text>
+            </g>
+
+            <g class="wedge" data-i="8" tabindex="0"><title>亞洲午後 Asia Afternoon｜HKT 12:00–15:00</title>
+              <path d="M400,790 A390,390 0 0 1 124.23,675.77 L186.45,613.55 A302,302 0 0 0 400,702 Z" fill="#e4eefa" stroke="#2f6fb0" stroke-width="1.4"/>
+              <path d="M400,792 A392,392 0 0 1 122.81,677.19 L124.23,675.77 A390,390 0 0 0 400,790 Z" fill="#2f6fb0" opacity="0.45"/>
+              <text class="w-tz" transform="translate(280.99,687.33) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#1e4f80">看：亞洲</text>
+              <text class="w-zh" transform="translate(256.88,745.53) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞洲午後</text>
+              <text class="w-en" transform="translate(263.4,729.8) rotate(382.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Asia Afternoon</text>
+            </g>
+
+            <g class="wedge" data-i="9" tabindex="0"><title>倫敦鋪墊 Pre-London Uptick｜HKT 15:00–16:00</title>
+              <path d="M124.23,675.77 A390,390 0 0 1 62.25,595 L138.46,551 A302,302 0 0 0 186.45,613.55 Z" fill="#dcf1ef" stroke="#1f8f86" stroke-width="1.4"/>
+              <path d="M122.81,677.19 A392,392 0 0 1 60.52,596 L62.25,595 A390,390 0 0 0 124.23,675.77 Z" fill="#1f8f86" opacity="0.95"/>
+              <text class="w-tz" transform="translate(153.27,589.32) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#0f5f59">看：亞洲→歐洲</text>
+              <text class="w-zh" transform="translate(103.29,627.68) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">倫敦鋪墊</text>
+              <text class="w-en" transform="translate(116.8,617.3) rotate(412.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Pre-London Uptick</text>
+            </g>
+
+            <g class="wedge" data-i="10" tabindex="0"><title>亞歐重疊 Asia/Europe Overlap｜HKT 16:00–17:00</title>
+              <path d="M62.25,595 A390,390 0 0 1 23.29,500.94 L108.29,478.16 A302,302 0 0 0 138.46,551 Z" fill="#ece2fb" stroke="#7b4fd0" stroke-width="2.5"/>
+              <path d="M60.52,596 A392,392 0 0 1 21.36,501.46 L23.29,500.94 A390,390 0 0 0 62.25,595 Z" fill="#7b4fd0" opacity="0.95"/>
+              <text class="w-tz" transform="translate(112.67,519.01) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#57349b">看：亞洲＋歐洲</text>
+              <text class="w-zh" transform="translate(54.47,543.12) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">亞歐重疊</text>
+              <text class="w-en" transform="translate(70.1,536.6) rotate(427.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Asia/Europe Overlap</text>
+            </g>
+
+            <g class="wedge" data-i="11" tabindex="0"><title>倫敦早盤突破 London Breakout｜HKT 17:00–18:00</title>
+              <path d="M23.29,500.94 A390,390 0 0 1 10,400 L98,400 A302,302 0 0 0 108.29,478.16 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M21.36,501.46 A392,392 0 0 1 8,400 L10,400 A390,390 0 0 0 23.29,500.94 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text class="w-tz" transform="translate(91.66,440.59) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#0f5f3d">看：歐洲</text>
+              <text class="w-zh" transform="translate(29.2,448.82) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">倫敦早盤突破</text>
+              <text class="w-en" transform="translate(46.1,446.6) rotate(442.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">London Breakout</text>
+            </g>
+
+            <g class="wedge" data-i="12" tabindex="0"><title>倫敦動能 London Momentum｜HKT 18:00–20:00</title>
+              <path d="M10,400 A390,390 0 0 1 62.25,205 L138.46,249 A302,302 0 0 0 98,400 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M8,400 A392,392 0 0 1 60.52,204 L62.25,205 A390,390 0 0 0 10,400 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text class="w-tz" transform="translate(99.6,319.51) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#0f5f3d">看：歐洲</text>
+              <text class="w-zh" transform="translate(38.74,303.2) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">倫敦動能</text>
+              <text class="w-en" transform="translate(55.2,307.6) rotate(285)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">London Momentum</text>
+            </g>
+
+            <g class="wedge" data-i="13" tabindex="0"><title>倫敦轉折 London Reversal｜HKT 20:00–21:00</title>
+              <path d="M62.25,205 A390,390 0 0 1 124.23,124.23 L186.45,186.45 A302,302 0 0 0 138.46,249 Z" fill="#dcf2e6" stroke="#1c8a5a" stroke-width="1.4"/>
+              <path d="M60.52,204 A392,392 0 0 1 122.81,122.81 L124.23,124.23 A390,390 0 0 0 62.25,205 Z" fill="#1c8a5a" opacity="0.95"/>
+              <text class="w-tz" transform="translate(153.27,210.68) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#0f5f3d">看：歐洲</text>
+              <text class="w-zh" transform="translate(103.29,172.32) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">倫敦轉折</text>
+              <text class="w-en" transform="translate(116.8,182.7) rotate(307.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">London Reversal</text>
+            </g>
+
+            <g class="wedge" data-i="14" tabindex="0"><title>紐約開市 NY Open｜HKT 21:00–22:00</title>
+              <path d="M124.23,124.23 A390,390 0 0 1 205,62.25 L249,138.46 A302,302 0 0 0 186.45,186.45 Z" fill="#fde8d8" stroke="#d1622a" stroke-width="1.4"/>
+              <path d="M122.81,122.81 A392,392 0 0 1 204,60.52 L205,62.25 A390,390 0 0 0 124.23,124.23 Z" fill="#d1622a" opacity="0.95"/>
+              <text class="w-tz" transform="translate(210.68,153.27) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#9c4519">看：美國</text>
+              <text class="w-zh" transform="translate(172.32,103.29) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">紐約開市</text>
+              <text class="w-en" transform="translate(182.7,116.8) rotate(322.5)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">NY Open</text>
+            </g>
+
+            <g class="wedge" data-i="15" tabindex="0"><title>歐美重疊核心 Core EU/NA Overlap｜HKT 22:00–24:00</title>
+              <path d="M205,62.25 A390,390 0 0 1 400,10 L400,98 A302,302 0 0 0 249,138.46 Z" fill="#fbeed2" stroke="#c98a1e" stroke-width="2.5"/>
+              <path d="M204,60.52 A392,392 0 0 1 400,8 L400,10 A390,390 0 0 0 205,62.25 Z" fill="#c98a1e" opacity="0.95"/>
+              <text class="w-tz" transform="translate(319.51,99.6) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="10.6" font-weight="800" fill="#8f620f">看：歐洲＋美國</text>
+              <text class="w-zh" transform="translate(303.2,38.74) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="15.2" font-weight="800" fill="#12263f">歐美重疊核心</text>
+              <text class="w-en" transform="translate(307.6,55.2) rotate(345)" text-anchor="middle" dominant-baseline="central" font-size="9.4" font-weight="700" fill="#5b6b7d">Core EU/NA Overlap</text>
+            </g>
+
+            <!-- Inner Rings & Session Arcs -->
+            <circle cx="400" cy="400" r="300" fill="#eef4fb" stroke="#dbe4ef" stroke-width="1.2"/>
+            <circle cx="400" cy="400" r="248" fill="#f4f6f9" stroke="#dbe4ef" stroke-width="1.2"/>
+            <path d="M639.55,464.19 A248,248 0 0 1 160.45,464.19 L185.56,457.46 A222,222 0 0 0 614.44,457.46 Z" fill="#2f6fb0" opacity="0.92"/>
+            <path d="M207.74,511 A222,222 0 0 1 457.46,185.56 L450.73,210.68 A196,196 0 0 0 230.26,498 Z" fill="#1c8a5a" opacity="0.92"/>
+            <path d="M261.41,261.41 A196,196 0 0 1 596,400 L570,400 A170,170 0 0 0 279.79,279.79 Z" fill="#d1622a" opacity="0.92"/>
+
+            <!-- Hour Markers -->
+            <g class="w-hr" font-family="'Inter','Segoe UI',sans-serif" text-anchor="middle" dominant-baseline="central" font-size="12.6" font-weight="800" fill="#12263f">
+              <text x="400" y="114">00</text><text x="474" y="124">01</text><text x="543" y="152">02</text>
+              <text x="602" y="198">03</text><text x="648" y="257">04</text><text x="676" y="326">05</text>
+              <text x="686" y="400">06</text><text x="676" y="474">07</text><text x="648" y="543">08</text>
+              <text x="602" y="602">09</text><text x="543" y="648">10</text><text x="474" y="676">11</text>
+              <text x="400" y="686">12</text><text x="326" y="676">13</text><text x="257" y="648">14</text>
+              <text x="198" y="602">15</text><text x="152" y="543">16</text><text x="124" y="474">17</text>
+              <text x="114" y="400">18</text><text x="124" y="326">19</text><text x="152" y="257">20</text>
+              <text x="198" y="198">21</text><text x="257" y="152">22</text><text x="326" y="124">23</text>
+            </g>
+
+            <!-- Center Hub -->
+            <circle cx="400" cy="400" r="116" fill="#102941" stroke="#0a1c2e" stroke-width="2" filter="url(#soft)"/>
+            <text x="400" y="344" text-anchor="middle" font-size="11.5" font-weight="700" fill="#8fb6d8" letter-spacing="2.2">24-HOUR</text>
+            <text class="hub-title" x="400" y="376" text-anchor="middle" font-size="27" font-weight="800" fill="#ffffff">外匯交易週期</text>
+            <text x="400" y="399" text-anchor="middle" font-size="10.5" font-weight="700" fill="#8fb6d8" letter-spacing="1.5">FOREX TRADING CYCLE</text>
+            <line x1="335" y1="412" x2="465" y2="412" stroke="#3d6c96" stroke-width="1"/>
+            <text class="hub-sub" x="400" y="434" text-anchor="middle" font-size="14" font-weight="800" fill="#f2c14e">香港時間 HKT (UTC+8)</text>
+            <text x="400" y="454" text-anchor="middle" font-size="10" fill="#a8c4de">週一 06:00 至週六 06:00</text>
+            <text class="hub-stat" x="400" y="477" text-anchor="middle" font-size="17" font-weight="800" fill="#ffffff">≈38% 倫敦成交量</text>
+
+            <g id="activeSeg" opacity="0"></g>
+            <circle cx="400" cy="400" r="404" fill="none" stroke="#dde5ef" stroke-width="8" stroke-dasharray="1 7" opacity="0.9"/>
+            <g id="eventLayer"></g>
+            <g id="nowMarker"></g>
+            <g id="previewMarker"></g>
+          </svg>
+          <div id="tip"></div>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2f6fb0"></i>亞洲 07–17</span>
+          <span><i style="background:#1c8a5a"></i>歐洲 16–01</span>
+          <span><i style="background:#d1622a"></i>北美 21–06</span>
+          <span><i style="background:#7b4fd0"></i>亞歐重疊</span>
+          <span><i style="background:#c98a1e"></i>歐美重疊</span>
+          <span><i style="background:#e03a3a"></i>現在</span>
+          <span><i style="background:#f2c14e"></i>預覽</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Draggable Split Resizer -->
+    <div class="split-resizer" id="splitResizer" title="左右拖曳調整圓盤與數據面板比例"></div>
+
+    <!-- Right Pane: Scrollable Portfolio, Session Details & AI Briefing -->
+    <aside class="right-pane" id="rightScroll">
+
+      <!-- Inline Portfolio & Two-Way CSV Manager -->
+      <section class="card" style="margin-bottom:14px">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#157a4e;display:inline-block"></span>持倉組合與雙向 CSV 資料庫（行內即時編輯）</h2>
+        <p class="hint">修改任意欄位或新增倉位時，自動計算<b>含隔夜息保本價（Swap-Adjusted BE）</b>並即時寫入本地 CSV 檔案。</p>
+
+        <div id="pfToast" class="toast-msg" role="alert"></div>
+
+        <div class="csv-bar">
+          <div class="csv-status">
+            <span class="csv-dot" id="csvStatusDot"></span>
+            <span id="csvStatusTxt">未綁定本地檔案（目前使用瀏覽器暫存，請點擊右側綁定 CSV）</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button type="button" class="btn sm pri" id="btnBindCsv">綁定本地 CSV</button>
+            <button type="button" class="btn sm" id="btnNewCsv">新建並綁定 CSV</button>
+            <button type="button" class="btn sm" id="btnExportCsv">下載 CSV 備份</button>
+            <input type="file" id="csvFileInput" accept=".csv,text/csv" style="display:none"/>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="pf-table">
+            <thead>
+              <tr>
+                <th>貨幣對</th>
+                <th>方向</th>
+                <th>手數</th>
+                <th>開倉價 Entry</th>
+                <th>現價 Current</th>
+                <th>隔夜息 Swap</th>
+                <th>保本價 BE</th>
+                <th>淨盈虧 (USD)</th>
+                <th>備註</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="pfTbody"></tbody>
+            <tfoot>
+              <tr id="pfAddRow" class="pf-add-row">
+                <td><input type="text" data-new="pair" placeholder="GBPCHF" style="text-transform:uppercase;width:72px"/></td>
+                <td>
+                  <select data-new="side" style="width:66px">
+                    <option value="BUY">BUY</option>
+                    <option value="SELL">SELL</option>
+                  </select>
+                </td>
+                <td><input type="number" step="0.01" min="0.01" data-new="lots" value="0.10" style="width:62px"/></td>
+                <td><input type="number" step="0.00001" data-new="entry" placeholder="必填開倉價" style="width:86px"/></td>
+                <td><input type="number" step="0.00001" data-new="current" placeholder="現價" style="width:86px"/></td>
+                <td><input type="number" step="0.01" data-new="swap" value="0" style="width:68px"/></td>
+                <td class="num" style="color:#8d9eb2">自動計算</td>
+                <td class="num" style="color:#8d9eb2">自動計算</td>
+                <td><input type="text" data-new="notes" placeholder="策略備註" style="width:95px"/></td>
+                <td><button type="button" class="btn sm ok" id="btnAddPfRow">＋ 新增</button></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- Session Readout -->
+      <section class="card" style="margin-bottom:14px">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>時段詳情</h2>
+        <div class="readout">
+          <div class="rt-top">
+            <span class="rt-zh" id="roZh">—</span>
+            <span class="rt-en" id="roEn"></span>
+            <span class="rt-badge" id="roBadge">—</span>
+          </div>
+          <div class="rt-time">
+            <div>星期<b id="roDay">—</b></div>
+            <div>香港時間<b id="roHkt">—</b></div>
+            <div>UTC<b id="roUtc">—</b></div>
+            <div>美東 ET<b id="roEt">—</b></div>
+          </div>
+          <p class="rt-line"><span class="lbl">市場狀態</span><b id="roState">—</b></p>
+          <p class="rt-line"><span class="lbl">應該看的時區表現</span><b id="roWatch">—</b></p>
+          <p class="rt-line"><span class="lbl">本時段操作建議</span><span id="roStrat">—</span></p>
+          <p class="rt-line"><span class="lbl">主要受影響貨幣對</span><b id="roPairs">—</b></p>
+          <div class="pillset" id="roPills"></div>
+        </div>
+      </section>
+
+      <!-- AI Briefing -->
+      <div class="ai" id="aiPanel">
+        <div class="ai-head">
+          <span class="tag">AI 市場簡報</span>
+          <h3 id="aiTitle">—</h3>
+          <span class="ai-status st-open" id="aiStatus">—</span>
+          <div class="rt" id="aiStamp">—</div>
+        </div>
+        <div class="ai-body">
+          <div class="ai-day" id="aiDay">
+            <div class="ai-day-top">
+              <div class="dh">—</div>
+              <div class="dt">—</div>
+            </div>
+            <p id="aiDayTxt">—</p>
+          </div>
+          <div class="ai-grid" style="margin-top:10px">
+            <div class="ai-box" id="bxNow"><div class="h"><em>📈</em>外匯市場現況</div><p id="aiNow">—</p></div>
+            <div class="ai-box" id="bxGeo"><div class="h"><em>🌍</em>地緣政治 · 外交風波</div><p id="aiGeo">—</p></div>
+            <div class="ai-box" id="bxCb"><div class="h"><em>🏦</em>央行政策</div><p id="aiCb">—</p></div>
+            <div class="ai-box" id="bxData"><div class="h"><em>📊</em>數據公布 · 突發事件</div><p id="aiData">—</p></div>
+          </div>
+          <div class="ai-act" id="aiAct"><b>本時段操作重點 ▸</b> —</div>
+          <div class="ai-up" id="aiUp"><b>接下來 24 小時 ▸</b> —</div>
+        </div>
+      </div>
+
+      <!-- Master Schedule Table -->
+      <section class="card">
+        <h2><span style="width:9px;height:9px;border-radius:50%;background:#2f6fb0;display:inline-block"></span>分析數據：每個香港時段 應看哪個時區的外匯表現</h2>
+        <p class="hint">點擊任一列可即時切換左側圓盤並跳回頂部檢視。</p>
+        <div class="table-wrap">
+          <table id="masterTable">
+            <thead><tr><th>香港時間</th><th>UTC</th><th>美東 ET</th><th>應看的時區</th><th>市場性格</th><th>操作建議</th><th>級別</th></tr></thead>
+            <tbody>
+              <tr data-seg="0"><td class="num"><b>00:00–01:00</b></td><td class="num">16:00–17:00</td><td class="num">11:00–12:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲＋美國</td><td>獲利回吐</td><td>不開新倉，只做倉位管理；預備 07:00 東京開盤突破單。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="1"><td class="num"><b>01:00–02:00</b></td><td class="num">17:00–18:00</td><td class="num">12:00–13:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>波動遞減</td><td>僅管理倉位；用掛單等待亞洲開盤方向確認。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="2"><td class="num"><b>02:00–03:00</b></td><td class="num">18:00–19:00</td><td class="num">13:00–14:00</td><td><span class="sdot" style="background:#8496ab"></span>過渡期</td><td>交接真空</td><td>不交易；用掛單等待亞洲開盤方向確認。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="3"><td class="num"><b>03:00–06:00</b></td><td class="num">19:00–22:00</td><td class="num">14:00–17:00</td><td><span class="sdot" style="background:#8496ab"></span>紐約尾盤至換日</td><td>低流動性</td><td>波段長線建倉窗口（避開 05:00–06:00 換日點差）。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="4"><td class="num"><b>06:00–07:00</b></td><td class="num">22:00–23:00</td><td class="num">17:00–18:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（前哨）</td><td>跳空突破</td><td>順勢追突破先等 15 分鐘確認；日圓干預風險高。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="5"><td class="num"><b>07:00–08:00</b></td><td class="num">23:00–00:00</td><td class="num">18:00–19:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>承接方向</td><td>以亞洲承接方向做短線；AUD/JPY 最活躍。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="6"><td class="num"><b>08:00–10:00</b></td><td class="num">00:00–02:00</td><td class="num">19:00–21:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>趨勢初成</td><td>等待突破亞洲早盤區間，量能確認後順勢持有。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="7"><td class="num"><b>10:00–12:00</b></td><td class="num">02:00–04:00</td><td class="num">21:00–23:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（東京）</td><td>區間整理</td><td>支撐阻力高拋低吸，止損放區間外；不追突破單。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="8"><td class="num"><b>12:00–15:00</b></td><td class="num">04:00–07:00</td><td class="num">23:00–02:00</td><td><span class="sdot" style="background:#2f6fb0"></span>亞洲（歐盤前）</td><td>數據預期</td><td>歐盤前收縮過度槓桿；先佈局突破掛單。</td><td class="lvl">★☆☆</td></tr>
+              <tr data-seg="9"><td class="num"><b>15:00–16:00</b></td><td class="num">07:00–08:00</td><td class="num">02:00–03:00</td><td><span class="sdot" style="background:#1f8f86"></span>亞洲 轉 歐洲</td><td>波幅擴大</td><td>先掛突破單等波幅擴大；留意 EUR/USD 1.1000。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="10"><td class="num"><b>16:00–17:00</b></td><td class="num">08:00–09:00</td><td class="num">03:00–04:00</td><td><span class="sdot" style="background:#7b4fd0"></span>亞洲＋歐洲</td><td>交叉盤活躍</td><td>用倫敦開市首根 5 分鐘 K 線確認方向順勢入場。</td><td class="lvl">★★★</td></tr>
+              <tr data-seg="11"><td class="num"><b>17:00–18:00</b></td><td class="num">09:00–10:00</td><td class="num">04:00–05:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>日內突破</td><td>順勢突破為主，配合 5 分鐘收線確認。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="12"><td class="num"><b>18:00–20:00</b></td><td class="num">10:00–12:00</td><td class="num">05:00–07:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>順勢動能</td><td>順勢突破＋回調進場的黃金窗。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="13"><td class="num"><b>20:00–21:00</b></td><td class="num">12:00–13:00</td><td class="num">07:00–08:00</td><td><span class="sdot" style="background:#1c8a5a"></span>歐洲（倫敦）</td><td>高位反轉</td><td>順勢倉位適度減半；等假突破反轉訊號。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="14"><td class="num"><b>21:00–22:00</b></td><td class="num">13:00–14:00</td><td class="num">08:00–09:00</td><td><span class="sdot" style="background:#d1622a"></span>美國（紐約）</td><td>美元定價</td><td>數據前降槓桿；數據後等 15 分鐘收線確認。</td><td class="lvl">★★☆</td></tr>
+              <tr data-seg="15"><td class="num"><b>22:00–24:00</b></td><td class="num">14:00–16:00</td><td class="num">09:00–11:00</td><td><span class="sdot" style="background:#c98a1e"></span>歐洲＋美國</td><td>最高量</td><td>全日唯一重倉窗口：區間突破後假突破策略或順勢單。</td><td class="lvl">★★★</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <footer>
+    <b>使用提示</b>：雙擊 <code>start_dashboard.bat</code>（透過 <code>http://localhost:8080</code> 開啟）即可解鎖 Chrome / Edge 的本地 CSV 檔案雙向即時自動儲存功能。
+  </footer>
+</div>
+
+<script>
+/* ===== FX1 24-Hour Cycle & Interactive Portfolio Engine ===== */
+const WEDGES = [
+  { s:0, e:1, zh:"歐美重疊尾段", cl:"週末消息累積 · 亞洲接手前", en:"Overlap Tail", tz:"歐洲＋美國", tzFull:"歐洲（倫敦）＋美國（紐約）", tag:"EU+NY", k:"獲利回吐", hot:2, pr:"EUR/USD、GBP/USD" },
+  { s:1, e:2, zh:"紐約尾市", cl:"週末消息累積 · 亞洲接手前", en:"NY Late Session", tz:"美國", tzFull:"美國（紐約）", tag:"NY", k:"波動遞減", hot:1, pr:"USD/JPY、USD/CHF、EUR/USD" },
+  { s:2, e:3, zh:"亞洲待市", cl:"週末休市 · 開市前靜止", en:"Pre-Asia Handoff", tz:"過渡期", tzFull:"過渡期（紐約午後）", tag:"—", k:"交接真空", hot:0, pr:"—" },
+  { s:3, e:6, zh:"流動性靜淡", cl:"週末休市 · 開市前靜止", en:"Liquidity Lull", tz:"亞洲休市", tzFull:"紐約尾盤至換日（無主導）", tag:"—", k:"低流動性", hot:0, pr:"交叉盤（EUR/JPY、GBP/JPY）" },
+  { s:6, e:7, zh:"東京開市", cl:"亞洲時段（尚未開始）", en:"Tokyo Open", tz:"亞洲", tzFull:"亞洲（悉尼／東京前哨）", tag:"ASIA", k:"跳空突破", hot:2, pr:"USD/JPY、EUR/JPY、AUD/JPY" },
+  { s:7, e:8, zh:"亞洲承接", cl:"亞洲時段（尚未開始）", en:"Asia Takeover", tz:"亞洲", tzFull:"亞洲（東京＋悉尼）", tag:"ASIA", k:"承接方向", hot:1, pr:"AUD/USD、NZD/USD、AUD/JPY" },
+  { s:8, e:10, zh:"亞洲流動性", cl:"亞洲時段（尚未開始）", en:"Asian Liquidity", tz:"亞洲", tzFull:"亞洲（東京＋悉尼）", tag:"ASIA", k:"趨勢初成", hot:1, pr:"AUD、NZD、JPY 交叉盤" },
+  { s:10, e:12, zh:"亞洲盤整固", cl:"亞洲時段（尚未開始）", en:"Asian Range", tz:"亞洲", tzFull:"亞洲（東京）", tag:"ASIA", k:"區間整理", hot:0, pr:"JPY 交叉盤（EUR/JPY、USD/JPY）" },
+  { s:12, e:15, zh:"亞洲午後", cl:"亞洲時段（尚未開始）", en:"Asia Afternoon", tz:"亞洲", tzFull:"亞洲（等待歐洲接力）", tag:"ASIA", k:"數據預期", hot:1, pr:"USD 交叉盤、EUR/USD" },
+  { s:15, e:16, zh:"倫敦鋪墊", cl:"倫敦盤前（尚未開始）", en:"Pre-London Uptick", tz:"亞洲→歐洲", tzFull:"亞洲 轉 歐洲（倫敦）", tag:"PRE-EU", k:"波幅擴大", hot:2, pr:"EUR/JPY、GBP/JPY、EUR/USD" },
+  { s:16, e:17, zh:"亞歐重疊", cl:"亞歐重疊（尚未開始）", en:"Asia/Europe Overlap", tz:"亞洲＋歐洲", tzFull:"亞洲＋歐洲（倫敦）", tag:"ASIA+EU", k:"交叉盤活躍", hot:3, pr:"EUR/JPY、GBP/JPY（EUR/USD 開始反應）" },
+  { s:17, e:18, zh:"倫敦早盤突破", cl:"倫敦時段（尚未開始）", en:"London Breakout", tz:"歐洲", tzFull:"歐洲（倫敦）", tag:"EU", k:"日內突破", hot:2, pr:"EUR/USD、GBP/USD" },
+  { s:18, e:20, zh:"倫敦動能", cl:"倫敦時段（尚未開始）", en:"London Momentum", tz:"歐洲", tzFull:"歐洲（倫敦）", tag:"EU", k:"順勢動能", hot:2, pr:"EUR/USD、GBP/USD、EUR/CHF、GBP/CHF" },
+  { s:20, e:21, zh:"倫敦轉折", cl:"倫敦尾盤（尚未開始）", en:"London Reversal", tz:"歐洲", tzFull:"歐洲（倫敦）", tag:"EU", k:"高位反轉", hot:2, pr:"EUR/USD、GBP/USD" },
+  { s:21, e:22, zh:"紐約開市", cl:"紐約時段（尚未開始）", en:"NY Open", tz:"美國", tzFull:"美國（紐約）", tag:"NY", k:"美元定價", hot:2, pr:"全部 USD 貨幣對" },
+  { s:22, e:24, zh:"歐美重疊核心", cl:"歐美重疊（尚未開始）", en:"Core EU/NA Overlap", tz:"歐洲＋美國", tzFull:"歐洲（倫敦）＋美國（紐約）", tag:"EU+NY", k:"最高量", hot:3, pr:"EUR/USD、GBP/USD、USD/JPY" }
+];
+
+const AI = [
+  { now:"歐美重疊進入最後一小時，倫敦接近收市（17:00 UTC）。美元指數站上 103 的高位在亞洲接手前缺乏後續買盤，本時段通常是日內方向的最後一次修正。", geo:"美伊和談消息與中東局勢在亞洲開盤前仍可能傳出；油價單日曾跌逾 10%，顯示避險溢價正在快速收縮。", cb:"FOMC 會議紀錄（香港時間 11/19 03:00）前，市場已把 12 月加息 25bp 定價至約 90%。", brk:"USD/JPY 160.00 是政策干預觸發線；亞洲開盤前若再度逼近 160，可能出現官方口頭干預。", act:"不開新倉，只做倉位管理；為 07:00 東京開盤預備 JPY 交叉盤突破單。" },
+  { now:"倫敦已收市，紐約進入午盤，是美元強勢的最後確認期。USD/CHF 波動劇烈，避險需求與美瑞息差主導瑞郎與日圓走勢。", geo:"中東局勢若出現新一輪消息，已收市的歐洲盤會在亞洲早盤補價。", cb:"Fed 十月議息有兩票反對主張加息 25bp，鷹派分歧擴大，加息路徑仍是美元主要支撐。", brk:"尾盤前薄量時段點差擴大，假突破機率上升。", act:"僅管理倉位；用掛單等待亞洲開盤方向確認，滑點設定要收緊。" },
+  { now:"紐約午後交投轉淡、東京與悉尼尚未開市，全球流動性逐步降至低谷，價格以窄幅橫盤為主。", geo:"地緣政治頭條在此累積，隔夜跳空風險升高。", cb:"無政策事件。", brk:"突發新聞在此時段容易造成流動性真空跳空。", act:"不交易；用掛單等待亞洲開盤的方向確認。" },
+  { now:"紐約尾盤收市（06:00 HKT）及每日日結換日（05:00–06:00 HKT），點差擴闊、波動極低，是日內方向形成前的蓄勢期。", geo:"中東與美伊進程的最新消息在此被市場消化。", cb:"中國人民銀行上調外匯存款準備金率至 6%，在岸人民幣在 6.67 附近企穩。", brk:"隔夜突發新聞與 USD/JPY 干預是最大變數；05:00–06:00 換日點差最闊。", act:"波段與長線的建倉窗口：避開日內劇烈波動，用限價單分批佈局（避開 05:00–06:00 換日點差）。" },
+  { now:"新交易日開啟（週一 06:00 HKT 補週末缺口），日本 CPI 與第三季 GDP 等國內數據被消化，JPY 交叉盤出現亞洲時段第一個可交易訊號。", geo:"美國中期選舉後政策轉向及 AI 監管疑慮影響科技股與避險情緒。", cb:"日本央行政策利率 1.25%；12/18 加息定價約 84%。", brk:"USD/JPY 盤中觸及 160.19 後已獲財務大臣與首相的干預警告。", act:"順勢追突破但先等 15 分鐘確認方向；干預風險高，倉位宜小。" },
+  { now:"東京時段正式啟動（23:00 UTC），隔夜美元強勢的方向在此消化。AUD/USD 跌至 0.6773 的 10 個月低點，商品貨幣承壓。", geo:"油價因美伊和談希望急挫，直接壓制澳元、加元等商品貨幣。", cb:"RBA 已加息至 4.85%；RBNZ 第三季通脹回落至 3.7%。", brk:"澳洲就業數據是商品貨幣的單日最大變數。", act:"以亞洲承接方向做短線；AUD/JPY 為當日最活躍的亞洲交叉盤。" },
+  { now:"亞洲時段流動性主峰，東京定盤與中國在岸開盤帶動日內方向初成。", geo:"澳洲與中東相關的供應鏈消息影響商品貨幣估值。", cb:"中國收緊外匯流動性以抑制結匯，人民幣偏強格局未變但升值斜率放緩。", brk:"中國數據低於預期會放大人民幣波動並傳導至亞洲貨幣。", act:"等待突破亞洲時段早盤區間，量能確認後順勢持有。" },
+  { now:"東京午盤波動收斂，價格在區間內來回，是典型「區間為主」的時段。", geo:"暫無新增頭條。", cb:"歐洲理事會與歐央行官員在午間前開始發言，歐元定價醞釀中。", brk:"區間末端容易出現假突破。", act:"支撐阻力高拋低吸，止損放區間外；不追突破單。" },
+  { now:"歐洲開盤前的準備時段，美元倉位開始調整。美元指數 103.17 高位讓非美貨幣持續承壓。", geo:"美國中期選舉後的財政與 AI 監管政策不確定性持續發酵。", cb:"12 月 Fed 加息定價約 90%；歐央行 12 月加息預期同步升溫。", brk:"歐盤前的突發頭條可能改變整體定價。", act:"歐盤前收縮過度槓桿；可先佈局突破掛單等行情啟動。" },
+  { now:"自 HKT 15:00（UTC 07:00）起每小時 pip 區間明顯放大——歐洲交易員開始對亞洲隔夜動作作出反應。", geo:"法國財政與政治風險令歐元政治溢價受壓。", cb:"歐央行存款利率 2.50%，管委會鷹派訊號升溫。", brk:"英國 CPI 前 30 分鐘波動常先放大，須防假突破；留意 EUR/USD 1.1000 關口。", act:"先掛突破單等波幅擴大；用 EUR/USD 1.1000 關口作觸發條件。" },
+  { now:"倫敦正式開市接手亞洲盤，亞洲×歐洲交叉盤點差收窄、波動放大。", geo:"英國財政與評級檢討前的英鎊敏感度升高。", cb:"英國央行已加息至 4.00%，維持鷹派立場支撐英鎊。", brk:"EUR/USD 跌破 1.1000 會引發止損連鎖。", act:"用倫敦開市首根 5 分鐘 K 線確認方向順勢入場，止損設在亞洲時段區間之外。" },
+  { now:"倫敦開市後獨立主導，是歐洲早盤波幅最大的時段之一，歐元與英鎊在此突破日內區間。", geo:"歐洲能源價格反彈推升輸入型通脹，是歐央行最大的顧慮。", cb:"歐央行維持 2.50% 存款利率，屬典型鷹派暫停。", brk:"假突破比例高，需要收線確認。", act:"順勢突破為主，配合 5 分鐘收線確認；避免在開市瞬間追價。" },
+  { now:"全球約 38% 的日成交量在此形成，是歐元、英鎊、瑞郎影響力最大的時段。", geo:"法國財政風險令歐元短線承壓，避險資金與息差主導歐系貨幣分化。", cb:"市場對英國央行進一步收緊的預期支撐英鎊（GBP/USD 1.3211）。", brk:"若美債 10 年期收益率站上 5.1% 上方，美元會再創年內新高。", act:"順勢突破＋回調進場的黃金窗；歐洲時段最值得做單的區間。" },
+  { now:"倫敦尾盤前獲利回吐與紐約盤前佈局常在此出現，歐元日內階段性高低點多在此確立。", geo:"資金在美國數據前平倉，避險資產波動加劇。", cb:"Fed 官員密集講話窗口開啟，每一次發言都可能改變 12 月定價。", brk:"日圓干預警告可能在歐美交接期再現。", act:"順勢倉位在此段減半；反轉交易者等日內高低位假突破後跟進。" },
+  { now:"紐約於美東 08:00（HKT 21:00）開市，美元定價權接管，21:30 美國一級數據密集公布。", geo:"美伊和談與中東局勢在此被定價到油價與通脹預期。", cb:"12 月 Fed 加息定價約 90%；Fed 官員的每一次講話都可能改價。", brk:"數據瞬間滑點與停頓風險最高。", act:"數據前降槓桿；數據後等 15 分鐘收線確認再順勢入場。" },
+  { now:"倫敦與紐約同時開市，全日最高成交量、最大方向性擺動。美元指數 103.17 高位在此刷新。", geo:"中東、伊朗協議進度與美國政策轉向全部在此被匯率定價。", cb:"FOMC 會議紀錄（11/19 03:00 HKT）是本窗口之後的第一個政策事件。", brk:"USD/JPY 160.00 的干預線在亞洲開盤前仍可能觸發。", act:"全日唯一值得重倉的窗口：突破前 15–30 分鐘區間整理後的假突破策略，或數據後順勢單。" }
+];
+
+const DAY_CTX = [
+  { n:"週日", tag:"週末休市", tone:"closed", t:"全球現貨外匯市場整日休市（週末封盤）。消息面仍在累積，將於週一 06:00 HKT 開市以跳空缺口反映。", k:"休市期間沒有現貨報價成交。", a:"市場休市。開市前準備：① 寫下關鍵位（EUR/USD 1.1000、USD/JPY 160.00）；② 檢查 EA 與掛單滑點上限。" },
+  { n:"週一", tag:"補缺口日", tone:"open", t:"週一 06:00 HKT 正式開市，主線是「補回週末缺口」；第二波機構流動性於倫敦開市（16:00 HKT）加入。", k:"週末消息在亞洲開市前半小時內定價。", a:"亞洲時段先觀察缺口方向與回補幅度，待倫敦開市（16:00 HKT）確認方向再順勢入場。" },
+  { n:"週二", tag:"數據密集", tone:"open", t:"一級經濟數據升溫，形成「早段亞洲區間、晚段美國定價」的雙重節奏。", k:"亞洲與歐洲先建立高低區間，美國數據決定突破方向。", a:"亞洲段做區間、歐美段做方向；避免用同一套止損幅度應對兩種波動。" },
+  { n:"週三", tag:"政策敘事日", tone:"open", t:"英國 CPI 與 FOMC 會議紀錄（週四 03:00 HKT）為政策敘事核心，美元加息定價迎來重定。", k:"會議紀錄揭露委員分歧程度。", a:"FOMC 紀錄公布後 30–60 分鐘內波動劇烈，宜等首輪方向確認再順勢。" },
+  { n:"週四", tag:"事件密度最高", tone:"open", t:"凌晨 FOMC 紀錄、早盤澳洲就業、晚間美國初領失業金密集登場，全週事件密度最高。", k:"數據透過利率預期差傳導至交叉盤。", a:"每個事件後只做同向確認，不做逆勢猜頂底，預留半段日內倉位額度。" },
+  { n:"週五", tag:"獲利平倉日", tone:"open", t:"獲利平倉與週末前資金流主導，規避週末跳空風險使機構在週五減倉。", k:"避險平倉常令瑞郎、日圓在尾盤出現技術性回調。", a:"週五尾盤不追單；留倉過週末的話在歐美重疊結束前減半。" },
+  { n:"週六", tag:"週末休市", tone:"closed", t:"全球現貨外匯市場休市（週六 06:00 HKT 正式封盤）。", k:"週末地緣政治消息將累積成下週一開市缺口。", a:"休市期間不作交易決策；檢視本週風控執行並整理下週關鍵位。" }
+];
+
+const EVENTS = [
+  { d:"11/16", dow:1, h:7.83, cat:"data", t:"日本第三季 GDP（初值）", x:"23:50 GMT 換算；日圓交叉盤早盤定價基礎", imp:2 },
+  { d:"11/16", dow:1, h:21.5, cat:"data", t:"加拿大 10 月 CPI", x:"08:30 ET 換算；USD/CAD 1.4290 為關鍵位", imp:3 },
+  { d:"11/17", dow:2, h:21.5, cat:"data", t:"美國 10 月零售銷售", x:"08:30 ET 換算；檢驗消費韌性", imp:3 },
+  { d:"11/18", dow:3, h:15, cat:"data", t:"英國 10 月 CPI", x:"07:00 GMT 換算；預估 3.73%", imp:3 },
+  { d:"11/19", dow:4, h:3, cat:"cb", t:"FOMC 會議紀錄", x:"14:00 ET 換算；12 月加息 25bp 定價 90%", imp:3 },
+  { d:"11/19", dow:4, h:8.5, cat:"data", t:"澳洲 10 月就業", x:"00:30 GMT 換算；AUD/USD 0.6773 關鍵催化劑", imp:3 },
+  { d:"11/19", dow:4, h:21.5, cat:"data", t:"美國初領失業金人數", x:"08:30 ET 換算；檢驗勞動市場延續性", imp:2 },
+  { d:"11/20", dow:5, h:7.5, cat:"data", t:"日本 10 月 CPI", x:"23:30 GMT 換算；配合 12/18 日銀加息定價 84%", imp:2 },
+  { d:"11/20", dow:5, h:15, cat:"data", t:"英國 10 月零售銷售", x:"07:00 GMT 換算；考驗消費韌性", imp:2 },
+  { d:"11/20", dow:5, h:23, cat:"data", t:"美國密歇根大學消費者信心指數", x:"10:00 ET 換算；週五收盤前最後美元定價", imp:2 },
+  { d:"11/21", dow:6, h:1, cat:"geo", t:"Moody’s 英國評級檢討", x:"17:00 GMT 換算；財政壓力直接影響英鎊", imp:3 }
+];
+
+const RECUR = [
+  { h:7, cat:"brk", t:"亞洲開盤跳空窗口", x:"日圓干預消息、亞洲央行政見傳導，隔夜跳空風險最高", imp:2 },
+  { h:15, cat:"brk", t:"歐洲官員講話／波幅擴大", x:"UTC 07:00 起每小時 pip 區間明顯放大", imp:2 },
+  { h:21.5, cat:"brk", t:"美國一級數據發布", x:"滑點與停頓風險最高的一刻", imp:3 },
+  { h:22, cat:"brk", t:"Fed 官員點評窗口", x:"美東 09:00 起為官員講話密集時段", imp:2 }
+];
+
+const GEO_STAND = [
+  { h:2, cat:"geo", t:"美伊和談與中東局勢", x:"油價波動劇烈，避險溢價快速收縮或逆轉", imp:2 },
+  { h:5, cat:"geo", t:"USD/JPY 160 干預風險", x:"日本財務大臣與首相已發出警告", imp:3 },
+  { h:9, cat:"geo", t:"中國外匯政策收緊", x:"外匯存款準備金率升至 6%，雙向波動放大", imp:2 },
+  { h:11, cat:"geo", t:"美國中期選舉後政策轉向", x:"AI 監管疑慮令科技股波動，影響美元風險情緒", imp:2 },
+  { h:18, cat:"geo", t:"法國財政與歐元政治溢價", x:"壓制歐元短線表現", imp:2 }
+];
+
+const CAT = {
+  cb: { c:"#c62828", bg:"#fdeaea", zh:"央行政策" },
+  data: { c:"#1565c0", bg:"#e6f0fb", zh:"經濟數據" },
+  geo: { c:"#ef6c00", bg:"#fdeee0", zh:"地緣政治" },
+  brk: { c:"#6a1b9a", bg:"#f0e6f7", zh:"突發風險" }
+};
+
+const SNAP = {
+  date: "2026-11-14（週六）紐約收市",
+  snap: "DXY 103.17；EUR/USD 1.1022、GBP/USD 1.3211、AUD/USD 0.6773、USD/JPY 159.71、USD/CHF 0.8391、USD/CAD 1.4270；美 10 年期債息 ~5.1%；黃金 >$4,000"
+};
+
+const DAY_ZH = ["日", "一", "二", "三", "四", "五", "六"];
+const DAY_FULL = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"];
+const PAD = n => String(n).padStart(2, '0');
+const el = id => document.getElementById(id);
+const SEG_COL = { ASIA:'#2f6fb0', EU:'#1c8a5a', NY:'#d1622a', 'ASIA+EU':'#7b4fd0', 'EU+NY':'#c98a1e', 'PRE-EU':'#1f8f86', '—':'#8496ab' };
+let ACTIVE = new Set(['cb', 'data', 'geo', 'brk']);
+
+/* Inline Toast Helper (replaces alert) */
+let toastTimer = null;
+function showToast(msg) {
+  const box = el('pfToast');
+  if (!box) return;
+  box.textContent = msg;
+  box.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => box.classList.remove('show'), 4000);
+}
+
+/* Draggable Split Resizer */
+function initSplitResizer() {
+  const resizer = el('splitResizer');
+  const leftPane = el('leftPane');
+  const layout = el('mainLayout');
+  if (!resizer || !leftPane || !layout) return;
+
+  try {
+    const savedWidth = localStorage.getItem('fx_split_left_px');
+    if (savedWidth) {
+      const px = parseFloat(savedWidth);
+      if (px >= 340 && px <= window.innerWidth - 360) {
+        leftPane.style.flex = `0 0 ${px}px`;
+        leftPane.style.width = `${px}px`;
+      }
+    }
+  } catch (e) {}
+
+  let isDragging = false;
+
+  resizer.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    isDragging = true;
+    resizer.classList.add('dragging');
+    resizer.setPointerCapture(e.pointerId);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  resizer.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    const rect = layout.getBoundingClientRect();
+    const minLeft = 340;
+    const maxLeft = Math.max(minLeft, rect.width - 380);
+    const newLeft = Math.max(minLeft, Math.min(maxLeft, e.clientX - rect.left - 7));
+    leftPane.style.flex = `0 0 ${newLeft}px`;
+    leftPane.style.width = `${newLeft}px`;
+    try { localStorage.setItem('fx_split_left_px', String(newLeft)); } catch (err) {}
+  });
+
+  const stopDrag = (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    resizer.classList.remove('dragging');
+    if (e && e.pointerId !== undefined && resizer.hasPointerCapture(e.pointerId)) {
+      resizer.releasePointerCapture(e.pointerId);
+    }
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  };
+
+  resizer.addEventListener('pointerup', stopDrag);
+  resizer.addEventListener('pointercancel', stopDrag);
+}
+
+/* Two-Way CSV Binding & Inline Portfolio Management */
+let csvFileHandle = null;
+let portfolioRows = [
+  { id: 1, pair: "GBPCHF", side: "BUY", lots: 0.20, entry: 1.11250, current: 1.10880, swap: -4.20, notes: "EA Grid Layer 1" },
+  { id: 2, pair: "CADJPY", side: "SELL", lots: 0.30, entry: 111.850, current: 112.120, swap: 6.40, notes: "Carry Hedge" }
+];
+
+const CSV_HEADERS = ["pair", "side", "lots", "entry", "current", "swap", "notes"];
+
+function parseCsvText(text) {
+  const lines = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n").filter(l => l.trim() !== "");
+  if (lines.length === 0) return [];
+  const headerCols = lines[0].split(",").map(h => h.trim().toLowerCase());
+  const hasHeader = headerCols.includes("pair") && headerCols.includes("entry");
+  const startIdx = hasHeader ? 1 : 0;
+
+  const parsed = [];
+  for (let i = startIdx; i < lines.length; i++) {
+    const cols = lines[i].split(",").map(c => c.trim());
+    if (cols.length < 4) continue;
+    const pair = (cols[0] || "").toUpperCase();
+    const side = (cols[1] || "BUY").toUpperCase() === "SELL" ? "SELL" : "BUY";
+    const lots = parseFloat(cols[2]) || 0.01;
+    const entry = parseFloat(cols[3]);
+    const current = parseFloat(cols[4]);
+    const swap = parseFloat(cols[5]) || 0;
+    const notes = cols.slice(6).join(",") || "";
+    if (pair && !Number.isNaN(entry)) {
+      parsed.push({
+        id: Date.now() + i,
+        pair,
+        side,
+        lots,
+        entry,
+        current: Number.isNaN(current) ? entry : current,
+        swap,
+        notes
+      });
+    }
+  }
+  return parsed;
+}
+
+function serializeCsv() {
+  const rows = [CSV_HEADERS.join(",")];
+  portfolioRows.forEach(r => {
+    const safeNotes = String(r.notes || "").replace(/,/g, ";");
+    rows.push([r.pair, r.side, r.lots, r.entry, r.current, r.swap, safeNotes].join(","));
+  });
+  return rows.join("\n");
+}
+
+function updateCsvStatus(msg, linked) {
+  const txt = el('csvStatusTxt');
+  const dot = el('csvStatusDot');
+  if (txt) txt.textContent = msg;
+  if (dot) dot.classList.toggle('linked', Boolean(linked));
+}
+
+async function syncCsvToDisk() {
+  const csvContent = serializeCsv();
+  try { localStorage.setItem('fx_portfolio_backup_csv', csvContent); } catch (e) {}
+
+  if (csvFileHandle) {
+    try {
+      const writable = await csvFileHandle.createWritable();
+      await writable.write(csvContent);
+      await writable.close();
+      const now = new Date();
+      updateCsvStatus(`已雙向同步至本地 CSV (${PAD(now.getHours())}:${PAD(now.getMinutes())}:${PAD(now.getSeconds())})`, true);
+      return;
+    } catch (err) {
+      console.error("CSV write error:", err);
+      updateCsvStatus("寫入本地 CSV 失敗（權限中斷），已暫存於瀏覽器", false);
+    }
+  }
+}
+
+async function bindLocalCsvFile() {
+  if ('showOpenFilePicker' in window && window.isSecureContext) {
+    try {
+      const [handle] = await window.showOpenFilePicker({
+        multiple: false,
+        types: [{ description: 'CSV 持倉資料庫', accept: { 'text/csv': ['.csv'] } }]
+      });
+      csvFileHandle = handle;
+      const file = await csvFileHandle.getFile();
+      const text = await file.text();
+      const rows = parseCsvText(text);
+      if (rows.length > 0) {
+        portfolioRows = rows;
+      } else {
+        await syncCsvToDisk();
+      }
+      renderPortfolioTable();
+      updateCsvStatus(`已綁定本地檔案：${file.name}（雙向即時寫入啟用）`, true);
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+      console.warn("showOpenFilePicker failed, falling back to input:", err);
+    }
+  }
+
+  const fallbackInput = el('csvFileInput');
+  if (fallbackInput) fallbackInput.click();
+}
+
+async function createNewCsvFile() {
+  if ('showSaveFilePicker' in window && window.isSecureContext) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: 'fx_portfolio.csv',
+        types: [{ description: 'CSV 持倉資料庫', accept: { 'text/csv': ['.csv'] } }]
+      });
+      csvFileHandle = handle;
+      await syncCsvToDisk();
+      updateCsvStatus(`已建立並綁定：${handle.name}（雙向即時寫入啟用）`, true);
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
+  exportCsvDownload();
+}
+
+function exportCsvDownload() {
+  const blob = new Blob([serializeCsv()], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fx_portfolio.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  updateCsvStatus("已匯出 fx_portfolio.csv（提示：透過 http://localhost 開啟可自動覆寫原檔）", false);
+}
+
+function calcSwapBreakEven(row) {
+  const isJpy = row.pair.includes("JPY");
+  const contractSize = 100000;
+  const quoteToUsd = isJpy ? (1 / (row.current || 150)) : 1.0;
+  const usdPerPriceUnit = row.lots * contractSize * quoteToUsd;
+  if (usdPerPriceUnit <= 0) return row.entry;
+
+  const dir = row.side === "BUY" ? 1 : -1;
+  const bePrice = row.entry - (row.swap / (dir * usdPerPriceUnit));
+  const decimals = isJpy ? 3 : 5;
+  return bePrice.toFixed(decimals);
+}
+
+function calcFloatingUsd(row) {
+  const isJpy = row.pair.includes("JPY");
+  const contractSize = 100000;
+  const quoteToUsd = isJpy ? (1 / (row.current || 150)) : 1.0;
+  const dir = row.side === "BUY" ? 1 : -1;
+  const rawPnl = (row.current - row.entry) * dir * row.lots * contractSize * quoteToUsd;
+  return rawPnl + (row.swap || 0);
+}
+
+function renderPortfolioTable() {
+  const tbody = el('pfTbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  portfolioRows.forEach((row) => {
+    const isJpy = row.pair.includes("JPY");
+    const step = isJpy ? "0.001" : "0.00001";
+    const bePrice = calcSwapBreakEven(row);
+    const netUsd = calcFloatingUsd(row);
+    const pnlCls = netUsd >= 0 ? "pnl-pos" : "pnl-neg";
+
+    const tr = document.createElement('tr');
+    tr.dataset.id = String(row.id);
+    tr.innerHTML = `
+      <td><input type="text" data-col="pair" value="${row.pair}" style="font-weight:800;text-transform:uppercase;width:72px"/></td>
+      <td>
+        <select data-col="side" style="width:66px;font-weight:700;color:${row.side === 'BUY' ? '#157a4e' : '#c0392b'}">
+          <option value="BUY" ${row.side === 'BUY' ? 'selected' : ''}>BUY</option>
+          <option value="SELL" ${row.side === 'SELL' ? 'selected' : ''}>SELL</option>
+        </select>
+      </td>
+      <td><input type="number" step="0.01" min="0.01" data-col="lots" value="${row.lots}" style="width:62px"/></td>
+      <td><input type="number" step="${step}" data-col="entry" value="${row.entry}" style="width:86px"/></td>
+      <td><input type="number" step="${step}" data-col="current" value="${row.current}" style="width:86px"/></td>
+      <td><input type="number" step="0.01" data-col="swap" value="${row.swap}" style="width:68px"/></td>
+      <td class="num" style="color:#1e4f80">${bePrice}</td>
+      <td class="num ${pnlCls}">${netUsd >= 0 ? '+' : ''}${netUsd.toFixed(2)}</td>
+      <td><input type="text" data-col="notes" value="${row.notes || ''}" placeholder="備註" style="width:95px"/></td>
+      <td><button type="button" class="btn sm danger" data-action="delete">刪除</button></td>
+    `;
+
+    tr.querySelectorAll('input, select').forEach(ctrl => {
+      ctrl.addEventListener('change', async () => {
+        const col = ctrl.dataset.col;
+        if (col === 'pair') row.pair = ctrl.value.trim().toUpperCase();
+        else if (col === 'side') row.side = ctrl.value;
+        else if (col === 'lots') row.lots = parseFloat(ctrl.value) || 0.01;
+        else if (col === 'entry') {
+          const val = parseFloat(ctrl.value);
+          if (!Number.isNaN(val) && val > 0) row.entry = val;
+        }
+        else if (col === 'current') {
+          const val = parseFloat(ctrl.value);
+          if (!Number.isNaN(val) && val > 0) row.current = val;
+        }
+        else if (col === 'swap') row.swap = parseFloat(ctrl.value) || 0;
+        else if (col === 'notes') row.notes = ctrl.value.trim();
+
+        renderPortfolioTable();
+        await syncCsvToDisk();
+      });
+    });
+
+    tr.querySelector('[data-action="delete"]').addEventListener('click', async () => {
+      portfolioRows = portfolioRows.filter(item => item.id !== row.id);
+      renderPortfolioTable();
+      await syncCsvToDisk();
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+async function appendNewPortfolioRecord() {
+  const addRow = el('pfAddRow');
+  if (!addRow) return;
+
+  const pairEl = addRow.querySelector('[data-new="pair"]');
+  const sideEl = addRow.querySelector('[data-new="side"]');
+  const lotsEl = addRow.querySelector('[data-new="lots"]');
+  const entryEl = addRow.querySelector('[data-new="entry"]');
+  const currentEl = addRow.querySelector('[data-new="current"]');
+  const swapEl = addRow.querySelector('[data-new="swap"]');
+  const notesEl = addRow.querySelector('[data-new="notes"]');
+
+  const pair = (pairEl.value || "").trim().toUpperCase();
+  const side = sideEl.value === "SELL" ? "SELL" : "BUY";
+  const lots = parseFloat(lotsEl.value);
+  const entry = parseFloat(entryEl.value);
+  const currentRaw = parseFloat(currentEl.value);
+  const swap = parseFloat(swapEl.value);
+  const notes = (notesEl.value || "").trim();
+
+  if (!pair) {
+    showToast("請輸入貨幣對（例如 GBPCHF 或 CADJPY）。");
+    pairEl.focus();
+    return;
+  }
+  if (Number.isNaN(entry) || entry <= 0) {
+    showToast("請輸入有效的開倉價（Entry Price，必須大於 0）。");
+    entryEl.focus();
+    return;
+  }
+
+  const newRecord = {
+    id: Date.now(),
+    pair,
+    side,
+    lots: (!Number.isNaN(lots) && lots > 0) ? lots : 0.10,
+    entry,
+    current: (!Number.isNaN(currentRaw) && currentRaw > 0) ? currentRaw : entry,
+    swap: !Number.isNaN(swap) ? swap : 0,
+    notes
+  };
+
+  portfolioRows.push(newRecord);
+
+  pairEl.value = "";
+  lotsEl.value = "0.10";
+  entryEl.value = "";
+  currentEl.value = "";
+  swapEl.value = "0";
+  notesEl.value = "";
+
+  renderPortfolioTable();
+  await syncCsvToDisk();
+}
+
+function initPortfolioAndCsv() {
+  try {
+    const savedBackup = localStorage.getItem('fx_portfolio_backup_csv');
+    if (savedBackup) {
+      const parsed = parseCsvText(savedBackup);
+      if (parsed.length > 0) portfolioRows = parsed;
+    }
+  } catch (e) {}
+
+  renderPortfolioTable();
+
+  el('btnBindCsv')?.addEventListener('click', bindLocalCsvFile);
+  el('btnNewCsv')?.addEventListener('click', createNewCsvFile);
+  el('btnExportCsv')?.addEventListener('click', exportCsvDownload);
+  el('btnAddPfRow')?.addEventListener('click', appendNewPortfolioRecord);
+
+  el('pfAddRow')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      appendNewPortfolioRecord();
+    }
+  });
+
+  el('csvFileInput')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const rows = parseCsvText(String(reader.result || ""));
+      if (rows.length > 0) {
+        portfolioRows = rows;
+        try { localStorage.setItem('fx_portfolio_backup_csv', serializeCsv()); } catch (err) {}
+        renderPortfolioTable();
+        updateCsvStatus(`已載入 ${file.name}（唯讀模式：請改用 http://localhost 開啟以啟用自動寫回）`, false);
+      } else {
+        showToast("CSV 格式無法識別，請確認包含 pair,side,lots,entry 欄位。");
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+/* 24-Hour Cycle Wheel, Market State & AI Briefing Engine */
+const ST = { day: 0, hour: 0, live: true };
+function nowHkt() { const n = new Date(); return new Date(n.getTime() + n.getTimezoneOffset() * 60000 + 8 * 3600000); }
+function hktH(d) { return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600; }
+function segIndex(h) {
+  const hn = ((h % 24) + 24) % 24;
+  for (let i = 0; i < WEDGES.length; i++) {
+    if (hn >= WEDGES[i].s && hn < WEDGES[i].e) return i;
+  }
+  return 0;
+}
+
+function marketState(day, hour) {
+  const m = hour * 60;
+  if (day === 0) return { st:'closed', label:'週末休市（星期日）', note:'全球現貨外匯整日封盤，週日 17:00 ET（＝星期一 06:00 HKT）才重開。', reopen:'星期一 06:00 HKT 開市' };
+  if (day === 1 && m < 360) return { st:'closed', label:'週末休市（開市前夕）', note:'尚未進入本週交易時段，星期一 06:00 HKT 才正式開市。', reopen:'今日 06:00 HKT 開市' };
+  if (day === 6 && m >= 360) return { st:'closed', label:'週末休市（星期六）', note:'週五紐約已於星期六 06:00 HKT 收市，現貨外匯進入週末封盤。', reopen:'下星期一 06:00 HKT 開市' };
+  if (day === 6) return { st:'open', label:'開市中（星期五尾盤）', note:'仍在週五交易時段內，06:00 HKT 封盤後進入週末。', reopen:'星期六 06:00 HKT 封盤' };
+  if (m >= 300 && m < 360) return { st:'rollover', label:'日結換日 · 流動性極低', note:'紐約已收市、下一交易日未開市，為每日換日（Rollover）低谷，點差極闊。', reopen:'06:00 HKT 進入下一交易日' };
+  return { st:'open', label:'開市中', note:'正常交易時段，流動性由各主要金融中心輪替。', reopen:'—' };
+}
+
+function tradingDayNo(day, hour) {
+  const m = hour * 60;
+  if (day === 6 && m < 360) return '第 5 日（星期五尾盤）';
+  if (day === 1 && m < 360) return '休市（開市前夕）';
+  if (day === 0 || (day === 6 && m >= 360)) return '週末休市';
+  return `第 ${day} 日`;
+}
+
+const elayer = el('eventLayer');
+function evMarker(h, cat, title, detail, dateLabel, recur, lane) {
+  const c = CAT[cat], a = (h / 24) * 360, rad = (a - 90) * Math.PI / 180, r = 398 + lane * 9.5;
+  const x = 400 + r * Math.cos(rad), y = 400 + r * Math.sin(rad);
+  const x2 = 400 + 392 * Math.cos(rad), y2 = 400 + 392 * Math.sin(rad);
+  const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  g.setAttribute('class', 'ev'); g.setAttribute('data-cat', cat); g.style.cursor = 'pointer';
+  const inner = recur
+    ? `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.3" fill="#fff" stroke="${c.c}" stroke-width="2.2"/>`
+    : `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="${c.c}" stroke="#fff" stroke-width="1.8"/>`;
+  g.innerHTML = `<line x1="${x2.toFixed(1)}" y1="${y2.toFixed(1)}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="${c.c}" stroke-width="1.6" opacity="0.65"/>` + inner;
+  g.addEventListener('mousemove', e => showTip(e, (recur ? '⟳ ' : '● ') + c.zh + '｜' + title, detail + (dateLabel ? ` <span style="opacity:.78">${dateLabel}</span>` : '')));
+  g.addEventListener('mouseleave', hideTip);
+  g.addEventListener('click', () => { ST.hour = h; ST.live = false; setScrub(h * 60); render(); });
+  elayer.appendChild(g);
+}
+
+function buildEventLayer() {
+  if (!elayer) return;
+  elayer.innerHTML = '';
+  const all = [
+    ...EVENTS.map(v => ({ h:v.h, cat:v.cat, t:v.t, x:v.x, d:v.d + ' ' + hhmm(v.h), recur:false })),
+    ...RECUR.map(v => ({ h:v.h, cat:v.cat, t:v.t, x:v.x, d:'每日重複 · ' + hhmm(v.h), recur:true })),
+    ...GEO_STAND.map(v => ({ h:v.h, cat:v.cat, t:v.t, x:v.x, d:'常設風險窗口 · ' + hhmm(v.h), recur:true }))
+  ];
+  const gr = {};
+  all.forEach(v => { const k = Math.round(v.h * 60); (gr[k] = gr[k] || []).push(v); });
+  Object.keys(gr).forEach(k => gr[k].forEach((v, i) => evMarker(v.h, v.cat, v.t, v.x, v.d, v.recur, i)));
+  applyLayers();
+}
+
+function applyLayers() {
+  document.querySelectorAll('.ev').forEach(g => { g.style.display = ACTIVE.has(g.dataset.cat) ? '' : 'none'; });
+}
+
+const tip = el('tip');
+function showTip(e, title, detail) {
+  const wr = el('wheelWrap').getBoundingClientRect();
+  tip.innerHTML = '<b>' + title + '</b> ' + detail;
+  tip.style.opacity = '1';
+  const tw = tip.offsetWidth, th = tip.offsetHeight;
+  let x = e.clientX - wr.left + 14, y = e.clientY - wr.top + 12;
+  if (x + tw > wr.width) x = e.clientX - wr.left - tw - 14;
+  if (y + th > wr.height) y = wr.height - th - 6;
+  tip.style.left = Math.max(4, x) + 'px';
+  tip.style.top = Math.max(4, y) + 'px';
+}
+function hideTip() { if (tip) tip.style.opacity = '0'; }
+
+function drawNow(h) {
+  const a = (h / 24) * 360, rad = (a - 90) * Math.PI / 180;
+  const x1 = 400 + 170 * Math.cos(rad), y1 = 400 + 170 * Math.sin(rad);
+  const x2 = 400 + 392 * Math.cos(rad), y2 = 400 + 392 * Math.sin(rad);
+  const xm = 400 + 382 * Math.cos(rad), ym = 400 + 382 * Math.sin(rad);
+  el('nowMarker').innerHTML = `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#e03a3a" stroke-width="2.4" stroke-dasharray="7 5" opacity="0.9"/>` +
+    `<circle cx="${xm.toFixed(1)}" cy="${ym.toFixed(1)}" r="9" fill="#e03a3a" stroke="#fff" stroke-width="2.4"/><circle cx="${xm.toFixed(1)}" cy="${ym.toFixed(1)}" r="3.4" fill="#fff"/>`;
+}
+
+function drawPreview(h) {
+  if (!ST.live) {
+    const a = (h / 24) * 360, rad = (a - 90) * Math.PI / 180;
+    const x1 = 400 + 170 * Math.cos(rad), y1 = 400 + 170 * Math.sin(rad);
+    const x2 = 400 + 392 * Math.cos(rad), y2 = 400 + 392 * Math.sin(rad);
+    const xm = 400 + 382 * Math.cos(rad), ym = 400 + 382 * Math.sin(rad);
+    el('previewMarker').innerHTML = `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#c98a1e" stroke-width="2" stroke-dasharray="4 4" opacity="0.85"/>` +
+      `<circle cx="${xm.toFixed(1)}" cy="${ym.toFixed(1)}" r="8.5" fill="#f2c14e" stroke="#12263f" stroke-width="2"/>`;
+  } else {
+    el('previewMarker').innerHTML = '';
+  }
+}
+
+function arcPath(rO, rI, a1, a2) {
+  const p = (r, d) => { const q = (d - 90) * Math.PI / 180; return [400 + r * Math.cos(q), 400 + r * Math.sin(q)]; };
+  const p1 = p(rO, a1), p2 = p(rO, a2), p3 = p(rI, a2), p4 = p(rI, a1), lg = (a2 - a1) > 180 ? 1 : 0;
+  return `M${p1[0].toFixed(2)},${p1[1].toFixed(2)} A${rO},${rO} 0 ${lg} 1 ${p2[0].toFixed(2)},${p2[1].toFixed(2)} L${p3[0].toFixed(2)},${p3[1].toFixed(2)} A${rI},${rI} 0 ${lg} 0 ${p4[0].toFixed(2)},${p4[1].toFixed(2)} Z`;
+}
+
+function drawActive(idx) {
+  const w = WEDGES[idx], a1 = (w.s / 24) * 360, a2 = (w.e / 24) * 360, col = SEG_COL[w.tag];
+  el('activeSeg').innerHTML = `<path d="${arcPath(390, 302, a1, a2)}" fill="none" stroke="${col}" stroke-width="5" opacity="0.55" filter="url(#act)"/>` +
+    `<path d="${arcPath(170, 120, a1, a2)}" fill="${col}" opacity="0.16"/><path d="${arcPath(170, 120, a1, a2)}" fill="none" stroke="${col}" stroke-width="1.8" opacity="0.75"/>`;
+  el('activeSeg').setAttribute('opacity', '1');
+  document.querySelectorAll('#masterTable tbody tr').forEach(tr => {
+    tr.classList.toggle('row-active', Number(tr.dataset.seg) === idx);
+  });
+}
+
+function selectSeg(idx) {
+  const w = WEDGES[idx], a = AI[idx];
+  const ms = marketState(ST.day, ST.hour);
+  const dc = DAY_CTX[ST.day];
+  const closed = ms.st === 'closed';
+  el('roZh').textContent = closed ? w.cl : w.zh;
+  el('roEn').textContent = closed ? ('原定時段：' + w.zh + ' · 休市期間不適用') : w.en;
+  const b = el('roBadge'); b.textContent = w.tzFull; b.style.background = SEG_COL[w.tag];
+  el('roDay').textContent = DAY_FULL[ST.day];
+  el('roHkt').textContent = PAD(w.s) + ':00 → ' + PAD(w.e) + ':00';
+  el('roUtc').textContent = PAD((w.s + 16) % 24) + ':00 → ' + PAD((w.e + 16) % 24) + ':00';
+  el('roEt').textContent = PAD((w.s + 13) % 24) + ':00 → ' + PAD((w.e + 13) % 24) + ':00';
+  el('roState').textContent = ms.label + ' · ' + tradingDayNo(ST.day, ST.hour) + ' · ' + ms.note;
+  el('roWatch').textContent = closed ? dc.t : a.now;
+  el('roStrat').textContent = closed ? dc.a : a.act;
+  el('roPairs').textContent = w.pr;
+  el('roPills').innerHTML = ['類型：' + w.k, '時區：' + w.tzFull, '級別：' + '★'.repeat(w.hot || 1) + '☆'.repeat(3 - (w.hot || 1))]
+    .map((t, i) => `<span class="pill${i === 0 ? (closed ? ' off' : ' on') : ''}">${t}</span>`).join('') +
+    `<span class="pill${closed ? ' off' : (ms.st === 'rollover' ? ' warn' : ' on')}">${ms.label}</span>`;
+  drawActive(idx);
+  renderAI(idx);
+}
+
+function hhmm(v) { const h = Math.floor(v), m = Math.round((v - h) * 60); return PAD(h) + ':' + PAD(m); }
+function dayEvents(dow) { return EVENTS.filter(e => e.dow === dow).map(e => ({ h:e.h, t:e.t, x:e.x, d:e.d, c:e.cat })); }
+function nearEvents(h) {
+  const out = [];
+  const push = (e, label) => { let dh = e.h - h; if (dh < -0.001) dh += 24; if (dh < 24) out.push({ e, label, dh }); };
+  EVENTS.forEach(e => push(e, e.d));
+  RECUR.forEach(e => push(e, '每日重複'));
+  GEO_STAND.forEach(e => push(e, '常設背景'));
+  out.sort((a, b) => a.dh - b.dh || (b.e.imp || 1) - (a.e.imp || 1));
+  const cnt = {}, keep = [];
+  for (const o of out) {
+    const k = Math.floor(o.e.h); cnt[k] = cnt[k] || 0;
+    if (cnt[k] < 2) { cnt[k]++; keep.push(o); }
+    if (keep.length >= 6) break;
+  }
+  return keep;
+}
+
+function renderAI(idx) {
+  const w = WEDGES[idx], a = AI[idx], h = ST.hour;
+  const d = nowHkt(), ms = marketState(ST.day, h), dc = DAY_CTX[ST.day];
+  const closed = ms.st === 'closed';
+  el('aiTitle').textContent = closed
+    ? `${DAY_FULL[ST.day]} 休市 · ${w.cl} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00${ST.live ? '（現在）' : '（預覽）'}`
+    : `${DAY_FULL[ST.day]} ${w.zh} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00${ST.live ? '（現在）' : '（預覽）'}`;
+  const st = el('aiStatus');
+  st.textContent = ms.label;
+  st.className = 'ai-status ' + (closed ? 'st-closed' : (ms.st === 'rollover' ? 'st-roll' : 'st-open'));
+  el('aiStamp').innerHTML = `系統時間：HKT ${PAD(d.getHours())}:${PAD(d.getMinutes())} 依據 FX1 三時段系統`;
+
+  el('aiDay').querySelector('.dh').innerHTML = '📅 ' + dc.n + ' · ' + dc.tag;
+  el('aiDay').querySelector('.dt').textContent = tradingDayNo(ST.day, h);
+  el('aiDayTxt').textContent = dc.t;
+  el('aiDay').style.borderLeftColor = closed ? '#8496ab' : '#2f6fb0';
+
+  ['bxNow', 'bxGeo', 'bxCb', 'bxData'].forEach(id => el(id).className = 'ai-box' + (closed ? ' closed' : ''));
+  el('aiNow').textContent = closed
+    ? `${ms.note} 市場維持在休市前最後報價（${SNAP.snap}）。`
+    : `${a.now} 【快照】${SNAP.snap}`;
+  el('aiGeo').textContent = a.geo;
+  el('aiCb').textContent = closed ? `${a.cb}（休市期間政策預期仍隨消息發酵。）` : a.cb;
+
+  const inHour = [];
+  EVENTS.forEach(e => { if (e.dow === ST.day && Math.floor(e.h) === Math.floor(h)) inHour.push({ t:e.t, x:e.x, l:e.d }); });
+  RECUR.forEach(e => { if (Math.floor(e.h) === Math.floor(h)) inHour.push({ t:e.t, x:e.x, l:'每日重複' }); });
+  GEO_STAND.forEach(e => { if (Math.floor(e.h) === Math.floor(h)) inHour.push({ t:e.t, x:e.x, l:'常設背景' }); });
+  const dayEv = dayEvents(ST.day);
+
+  if (closed) {
+    el('aiData').textContent = `休市期間無經濟數據公布（${dc.k}）。本週關鍵數據：` + EVENTS.slice(0, 4).map(e => `${e.d} ${hhmm(e.h)} ${e.t}`).join('；') + '。';
+  } else if (inHour.length) {
+    el('aiData').textContent = '【本時段事件】' + inHour.map(x => `◉ ${x.t}（${x.l}）：${x.x}`).join(' ｜ ') + ' ' + a.brk;
+  } else {
+    el('aiData').textContent = a.brk + (dayEv.length ? ` 【${dc.n}日程】` + dayEv.map(e => `${hhmm(e.h)} ${e.t}`).join('；') : '');
+  }
+
+  el('aiAct').innerHTML = '<b>本時段操作重點 ▸</b> ' + (closed ? dc.a : a.act);
+  const near = nearEvents(h);
+  const up = near.map(x => `◉ ${hhmm(x.e.h)} ${x.e.t}（${CAT[x.e.cat].zh}${x.label !== '每日重複' && x.label !== '常設背景' ? '·' + x.label : ''}）`).join(' ｜ ');
+  el('aiUp').innerHTML = '<b>接下來 24 小時 ▸</b> ' + (up || '無重大事件') + (closed ? ' ｜ ' + ms.reopen : '');
+
+  window.__brief = `【外匯 24H 市場簡報｜${DAY_FULL[ST.day]} ${closed ? w.cl + '（休市）' : w.zh} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00｜${ms.label}】\n` +
+    `◆ 市場狀態：${ms.label}（${tradingDayNo(ST.day, h)}）\n` +
+    `◆ 市場現況：${el('aiNow').textContent}\n` +
+    `◆ 本時段操作重點：${closed ? dc.a : a.act}`;
+}
+
+/* Layer Chips */
+document.querySelectorAll('.chip[data-cat]').forEach(ch => {
+  ch.addEventListener('click', () => {
+    const c = ch.dataset.cat;
+    if (ACTIVE.has(c)) {
+      ACTIVE.delete(c); ch.classList.add('off'); ch.classList.remove('on');
+      ch.style.background = ''; ch.style.color = ''; ch.querySelector('i').style.background = CAT[c].c;
+    } else {
+      ACTIVE.add(c); ch.classList.remove('off'); ch.classList.add('on');
+      ch.style.background = CAT[c].c; ch.style.color = '#fff'; ch.querySelector('i').style.background = '#fff';
+    }
+    applyLayers();
+  });
+});
+
+/* Day Buttons */
+const dayBtns = el('dayBtns');
+DAY_ZH.forEach((z, i) => {
+  const b = document.createElement('button');
+  b.textContent = z; b.dataset.d = i;
+  b.title = DAY_FULL[i] + (i === 0 || i === 6 ? '（週末休市）' : '（交易日）');
+  b.addEventListener('click', () => { ST.day = i; ST.live = false; syncDayBtns(); render(); });
+  dayBtns.appendChild(b);
+});
+function syncDayBtns() {
+  [...dayBtns.children].forEach((b, i) => {
+    b.classList.toggle('on', i === ST.day);
+    b.classList.toggle('off', i === 0 || i === 6);
+  });
+}
+
+/* Wedge & Master Table Interactions */
+document.querySelectorAll('.wedge').forEach(g => {
+  const i = +g.dataset.i, w = WEDGES[i], a = AI[i];
+  g.style.cursor = 'pointer';
+  g.addEventListener('mouseenter', () => g.setAttribute('opacity', '0.74'));
+  g.addEventListener('mouseleave', () => { g.removeAttribute('opacity'); hideTip(); });
+  g.addEventListener('mousemove', e => {
+    const ms = marketState(ST.day, ST.hour), cl = ms.st === 'closed';
+    showTip(e, `${cl ? w.cl : w.zh}｜${DAY_FULL[ST.day]} HKT ${PAD(w.s)}:00–${PAD(w.e)}:00`,
+      `<b>${ms.label}</b> — ${cl ? DAY_CTX[ST.day].t : a.now}<br><b>操作 ▸</b> ${cl ? DAY_CTX[ST.day].a : a.act}`);
+  });
+  g.addEventListener('click', () => { ST.hour = w.s; ST.live = false; setScrub(w.s * 60); render(); });
+});
+
+document.querySelectorAll('#masterTable tbody tr').forEach(tr => {
+  tr.style.cursor = 'pointer';
+  tr.addEventListener('click', () => {
+    const idx = Number(tr.dataset.seg);
+    const w = WEDGES[idx];
+    ST.hour = w.s; ST.live = false; setScrub(w.s * 60); render();
+    el('rightScroll').scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+/* Scrubber & Controls */
+function setScrub(mins) {
+  const m = Math.round(mins);
+  el('scrub').value = m;
+  el('scrubLbl').textContent = (ST.live ? '現在 ' : '') + PAD(Math.floor(m / 60)) + ':' + PAD(m % 60);
+}
+el('scrub').addEventListener('input', () => {
+  const h = parseFloat(el('scrub').value) / 60; ST.hour = h; ST.live = false;
+  el('scrubLbl').textContent = PAD(Math.floor(h)) + ':' + PAD(Math.round((h % 1) * 60));
+  render();
+});
+el('btnNow').addEventListener('click', () => { ST.live = true; syncNow(); });
+el('btnRefresh').addEventListener('click', () => { render(); });
+el('btnCopy').addEventListener('click', () => {
+  const b = el('btnCopy'), t = b.textContent;
+  const text = window.__brief || '';
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    b.textContent = '✓ 已複製';
+  } catch (e) {
+    b.textContent = '複製失敗';
+  }
+  document.body.removeChild(ta);
+  setTimeout(() => b.textContent = t, 1800);
+});
+
+/* Main Loop */
+let lastHour = -1;
+function render() { selectSeg(segIndex(ST.hour)); drawPreview(ST.hour); }
+function syncNow() {
+  const d = nowHkt(), h = hktH(d);
+  drawNow(h);
+  const ms = marketState(d.getDay(), h);
+  const chip = el('nowChip');
+  chip.className = 'nowchip ' + (ms.st === 'closed' ? 'closed' : (ms.st === 'rollover' ? 'roll' : 'open'));
+  el('nowTxt').textContent = `現在香港時間 ${DAY_FULL[d.getDay()]} ${PAD(d.getHours())}:${PAD(d.getMinutes())} · ${ms.label}`;
+  const nx = new Date(d.getTime() + (60 - d.getMinutes()) * 60000);
+  el('nextTxt').textContent = `下次自動更新：${PAD(nx.getHours())}:00（每小時整點重生成簡報）`;
+  if (ST.live) {
+    ST.day = d.getDay(); ST.hour = h;
+    if (d.getHours() !== lastHour) { lastHour = d.getHours(); syncDayBtns(); }
+    setScrub(d.getHours() * 60 + d.getMinutes());
+    render();
+  } else {
+    setScrub(ST.hour * 60);
+    drawPreview(ST.hour);
+  }
+}
+
+/* Boot */
+initSplitResizer();
+initPortfolioAndCsv();
+buildEventLayer();
+syncDayBtns();
+syncNow();
+setInterval(syncNow, 20000);
+window.addEventListener('resize', hideTip);
+</script>
+</body>
+</html>
